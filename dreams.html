@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dreams · Ehoes Of Time</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  --bg:#0b1220; --bg2:#141c2e;
+  --cream:#faf7f0; --cream-surface:#ffffff;
+  --gold:#d9a35c; --gold-soft:#e8c491;
+  --navy:#0f1626; --navy-soft:#1b2436;
+  --text:#1b1f27; --text-inv:#f5f1e8;
+  --muted:#8a8f9a; --muted-dark:#a9afc2;
+  --border:#eae6db; --border-dark:#2a3348;
+  --red:#c0475e;
+  --radius:20px; --radius-sm:12px; --radius-lg:28px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  font-family:'Georgia','Times New Roman',serif;
+  background:var(--navy);
+  color:var(--text);
+  overflow-x:hidden;
+}
+.app-shell{max-width:480px;margin:0 auto;position:relative;min-height:100vh;background:var(--cream);}
+button{font-family:inherit;border:none;cursor:pointer;background:none;}
+svg{display:block;}
+a{text-decoration:none;color:inherit;}
+
+/* ---------- HEADER (same as home) ---------- */
+#page{padding-bottom:96px;}
+.header{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 14px;
+  background:var(--cream);z-index:15;
+  border-bottom:1px solid rgba(0,0,0,0.05);
+}
+.header-spacer{height:calc(env(safe-area-inset-top,0px) + 62px);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.back-btn{width:22px;height:22px;color:var(--navy);padding:6px;border-radius:50%;margin-left:-6px;transition:background .2s,transform .15s;}
+.back-btn:active{background:rgba(217,163,92,0.18);transform:scale(0.9);}
+.header-titles h1{font-size:19px;color:var(--navy);}
+.header-titles p{font-family:Georgia,serif;font-size:11.5px;color:var(--muted);margin-top:2px;}
+.icon-btn{width:22px;height:22px;color:var(--navy);padding:6px;border-radius:50%;transition:background .2s,transform .15s;}
+.icon-btn:active{background:rgba(217,163,92,0.18);transform:scale(0.9);}
+
+/* ---------- INTRO ---------- */
+.dream-intro{position:relative;padding:20px 20px 16px;overflow:hidden;}
+.dream-intro::before{
+  content:"";position:absolute;top:-30px;right:-40px;
+  width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,rgba(217,163,92,0.16),transparent 70%);
+  pointer-events:none;
+}
+.dream-eyebrow{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11.5px;letter-spacing:.4px;margin-bottom:6px;}
+.dream-eyebrow .rule{width:20px;height:1px;background:var(--gold);}
+.dream-intro h2{font-size:24px;color:var(--navy);line-height:1.2;}
+.dream-intro p.desc{margin-top:8px;padding-left:16px;border-left:2px solid var(--gold);
+  font-style:italic;color:#5b6270;font-size:13px;line-height:1.55;}
+
+/* ---------- GALLERY ---------- */
+.dream-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:6px 20px 20px;}
+.dream-card{
+  border-radius:var(--radius);overflow:hidden;background:#fff;
+  border:1px solid var(--border);box-shadow:0 10px 22px rgba(15,22,38,0.1);
+  transition:transform .18s ease;
+  opacity:0;transform:translateY(10px);animation:cardIn .55s ease forwards;
+}
+.dream-card:active{transform:scale(0.96);}
+@keyframes cardIn{to{opacity:1;transform:translateY(0);}}
+.dream-card .img-wrap{width:100%;aspect-ratio:0.85/1;overflow:hidden;background:linear-gradient(135deg,#eef1f5,#e3e6ec);}
+.dream-card img{width:100%;height:100%;object-fit:cover;display:block;}
+.dream-card h3{font-size:13px;color:var(--navy);padding:10px 12px 12px;text-align:center;line-height:1.3;}
+
+/* ---------- EMPTY STATE ---------- */
+.empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 30px;}
+.empty-state svg{width:44px;height:44px;color:var(--border);margin-bottom:14px;}
+.empty-state h3{font-size:15px;color:var(--navy);margin-bottom:6px;}
+.empty-state p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+/* ---------- FAB (opens add-dream sheet) ---------- */
+.fab{
+  position:fixed;right:20px;bottom:96px;z-index:25;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 24px rgba(217,163,92,0.35);
+  transition:transform .18s ease;
+  animation:fabPulse 2.6s ease-in-out infinite;
+}
+.fab:active{transform:scale(0.9);}
+.fab svg{width:22px;height:22px;color:#241705;}
+@keyframes fabPulse{
+  0%,100%{box-shadow:0 10px 24px rgba(217,163,92,0.35),0 0 0 0 rgba(217,163,92,0.25);}
+  50%{box-shadow:0 10px 24px rgba(217,163,92,0.35),0 0 0 8px rgba(217,163,92,0);}
+}
+
+/* ---------- BOTTOM NAV (identical to home) ---------- */
+.bottom-nav{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:0;width:100%;max-width:480px;
+  background:var(--cream-surface);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px));
+  z-index:20;
+}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;
+  padding:4px 10px;border-radius:14px;transition:transform .15s ease,background .2s ease,color .2s ease;}
+.nav-item svg{width:21px;height:21px;}
+.nav-item.active{color:var(--gold);background:rgba(217,163,92,0.12);}
+.nav-item:active{transform:scale(0.88);background:rgba(217,163,92,0.16);}
+.nav-fab{
+  width:50px;height:50px;border-radius:50%;background:var(--navy);
+  display:flex;align-items:center;justify-content:center;margin-top:-26px;
+  box-shadow:0 8px 18px rgba(15,22,38,0.35);border:4px solid var(--cream-surface);
+  transition:transform .18s ease,box-shadow .25s ease;
+  animation:fabPulse2 2.6s ease-in-out infinite;
+}
+.nav-fab:active{transform:scale(0.9);}
+.nav-fab svg{width:20px;height:20px;color:var(--gold-soft);}
+@keyframes fabPulse2{
+  0%,100%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 0 rgba(217,163,92,0.25);}
+  50%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 7px rgba(217,163,92,0);}
+}
+
+/* ---------- MODAL / BOTTOM SHEET ---------- */
+.sheet-backdrop{
+  position:fixed;inset:0;background:rgba(15,22,38,0.5);z-index:60;
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.sheet-backdrop.show{opacity:1;pointer-events:auto;}
+.sheet{
+  position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);
+  width:100%;max-width:480px;background:var(--cream);
+  border-radius:24px 24px 0 0;z-index:61;padding:22px 22px calc(24px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -14px 40px rgba(15,22,38,0.3);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+  max-height:88vh;overflow-y:auto;
+}
+.sheet.show{transform:translate(-50%,0);}
+.sheet-handle{width:40px;height:4px;border-radius:3px;background:var(--border);margin:0 auto 16px;}
+.sheet-close{position:absolute;top:18px;right:18px;width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--muted);
+  transition:background .2s,transform .15s;}
+.sheet-close:active{background:rgba(217,163,92,0.16);transform:scale(0.9);}
+.sheet-close svg{width:16px;height:16px;}
+.sheet h2{font-size:19px;color:var(--navy);margin-bottom:2px;padding-right:30px;}
+.sheet-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.sheet-actions{display:flex;gap:10px;margin-top:18px;}
+.sheet-actions button{flex:1;padding:13px;border-radius:16px;font-size:14px;font-weight:bold;}
+.btn-secondary{background:#fff;border:1px solid var(--border);color:var(--navy);}
+.btn-primary{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:#241705;}
+.btn-danger{background:rgba(192,71,94,0.1);color:var(--red);}
+
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:5px;}
+.field input{
+  width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--border);
+  background:#fff;font-family:inherit;font-size:13.5px;color:var(--navy);
+}
+.file-picker{
+  display:flex;align-items:center;gap:10px;width:100%;padding:12px 13px;
+  border-radius:12px;border:1px dashed var(--border);background:#fff;
+}
+.file-picker svg{width:18px;height:18px;color:var(--gold);flex-shrink:0;}
+.file-picker-label{font-size:12.5px;color:var(--navy);font-weight:bold;}
+.file-picker-name{font-size:11.5px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.img-preview{width:100%;border-radius:14px;overflow:hidden;margin-top:12px;border:1px solid var(--border);aspect-ratio:1/1;display:none;}
+.img-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* ---------- DETAIL VIEW ---------- */
+.detail-img{width:100%;border-radius:16px;overflow:hidden;margin-bottom:16px;border:1px solid var(--border);aspect-ratio:1/1;}
+.detail-img img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* ---------- TOAST ---------- */
+#toast{
+  position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:var(--text-inv);padding:11px 20px;border-radius:24px;
+  font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  z-index:100;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.3);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(min-width:768px){
+  .app-shell{border-left:1px solid var(--border);border-right:1px solid var(--border);}
+}
+
+/* ==========================================================
+   DESKTOP (>=900px) — left sidebar nav + centered dialogs
+   ========================================================== */
+@media (min-width:900px){
+  :root{--sidebar-w:88px;}
+
+  .app-shell{max-width:none;margin:0 0 0 var(--sidebar-w);}
+
+  .header{left:var(--sidebar-w);right:0;top:0;transform:none;margin:0;width:auto;max-width:none;padding-left:32px;padding-right:32px;}
+
+  #page{padding-bottom:40px;}
+
+  .bottom-nav{
+    left:0;right:auto;top:0;bottom:0;transform:none;margin:0;
+    width:var(--sidebar-w);max-width:none;height:100vh;
+    flex-direction:column;justify-content:flex-start;align-items:center;
+    gap:8px;padding:28px 0 20px;
+    border-top:none;border-right:1px solid var(--border);
+  }
+  .nav-item{width:64px;padding:8px 4px;}
+  .nav-fab{margin-top:4px;order:-1;}
+  .fab{bottom:24px;}
+
+  .sheet{
+    left:50%;top:50%;bottom:auto;right:auto;
+    width:92%;max-width:440px;max-height:86vh;
+    border-radius:24px;
+    transform:translate(-50%,-50%) scale(.95);
+    opacity:0;pointer-events:none;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+  }
+  .sheet.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+
+.dream-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;padding:6px 32px 32px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <section id="page">
+    <header class="header">
+      <div class="header-left">
+        <a href="index.html"><svg class="back-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></a>
+        <div class="header-titles">
+          <h1>Dreams</h1>
+          <p>The things I dream of.</p>
+        </div>
+      </div>
+      <svg class="icon-btn" onclick="toast('Dream gallery options coming soon')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg>
+    </header>
+    <div class="header-spacer"></div>
+
+    <div class="dream-intro">
+      <div class="dream-eyebrow"><span class="rule"></span>MY DREAMS</div>
+      <h2>A collection worth chasing</h2>
+      <p class="desc">A collection of the things I hope to experience, create and achieve.</p>
+    </div>
+
+    <div class="dream-grid" id="dreamGrid"></div>
+
+    <div class="empty-state" id="emptyState" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>
+      <h3>No dreams yet</h3>
+      <p>Tap + to add your first dream.</p>
+    </div>
+  </section>
+
+  <div class="fab" onclick="openAdd()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+      Home
+    </a>
+    <a href="photos.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+      Explore
+    </a>
+    <div class="nav-fab" onclick="toast('Quick add coming soon')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    </div>
+    <a href="diary.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/></svg>
+      Journal
+    </a>
+    <div class="nav-item" onclick="toast('Settings coming soon')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.9 2.9l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.9-2.9l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.9-2.9l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.6V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.9 2.9l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.6 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.6 1Z"/></svg>
+      Settings
+    </div>
+  </nav>
+
+  <!-- DREAM DETAIL SHEET -->
+  <div class="sheet-backdrop" id="detailBackdrop" onclick="closeSheet('detail')"></div>
+  <div class="sheet" id="detailSheet">
+    <button class="sheet-close" onclick="closeSheet('detail')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="sheet-handle"></div>
+    <div class="detail-img"><img id="detailImg" src="" alt=""></div>
+    <h2 id="detailTitle" style="text-align:center;">Dream</h2>
+    <div class="sheet-actions">
+      <button class="btn-secondary" onclick="openEdit()">Edit</button>
+      <button class="btn-danger" onclick="deleteDream()">Delete</button>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT DREAM SHEET -->
+  <div class="sheet-backdrop" id="formBackdrop" onclick="closeSheet('form')"></div>
+  <div class="sheet" id="formSheet">
+    <button class="sheet-close" onclick="closeSheet('form')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="sheet-handle"></div>
+    <h2 id="formTitle">Add Dream</h2>
+    <p class="sheet-sub">Give it a name and a picture to hold onto.</p>
+    <div class="field"><label>Dream Title</label><input id="fTitle" placeholder="e.g. Dream Home" maxlength="80"></div>
+    <div class="field">
+      <label>Choose Image</label>
+      <label class="file-picker" for="fImage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 20h14"/></svg>
+        <div>
+          <div class="file-picker-label">Choose Image</div>
+          <div class="file-picker-name" id="fImageName">No image selected</div>
+        </div>
+      </label>
+      <input type="file" id="fImage" accept="image/*" style="display:none" onchange="imageChosen()">
+      <div class="img-preview" id="imgPreview"><img id="imgPreviewImg" src="" alt=""></div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-secondary" onclick="closeSheet('form')">Cancel</button>
+      <button class="btn-primary" id="formSaveBtn" onclick="saveDream()">Add Dream</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+const IMGBB_API_KEY = "421680dbf325e616b275a9511c0defd5";
+const MAX_MB = 32;
+const $ = id => document.getElementById(id);
+const esc = t => String(t==null?'':t).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let dreams = [], loaded = false;
+let currentDream = null, editMode = false, chosenFile = null, previewUrl = null;
+function setData(list){ dreams = list; loaded = true; render(); }
+
+function uploadToImgBB(file, onPct){
+  return new Promise((res, rej)=>{
+    const fd = new FormData(); fd.append('image', file);
+    const x = new XMLHttpRequest();
+    x.open('POST', 'https://api.imgbb.com/1/upload?key='+encodeURIComponent(IMGBB_API_KEY));
+    x.upload.onprogress = e => { if(e.lengthComputable) onPct(Math.round(e.loaded/e.total*100)); };
+    x.onload = () => { try{ const j = JSON.parse(x.responseText); j.success ? res(j.data) : rej(new Error(j.error && j.error.message || 'Upload failed')); }catch(e){ rej(e); } };
+    x.onerror = () => rej(new Error('Network error'));
+    x.send(fd);
+  });
+}
+const imgFields = r => ({
+  url:r.url,
+  mediumUrl:(r.medium&&r.medium.url)||r.url,
+  thumbUrl:(r.thumb&&r.thumb.url)||r.url,
+  deleteUrl:r.delete_url||null
+});
+
+function render(){
+  const grid = $('dreamGrid');
+  grid.innerHTML = '';
+  const items = dreams.slice().sort((a,b)=>(b.created||0)-(a.created||0));
+  items.forEach((d,i)=>{
+    const card = document.createElement('div');
+    card.className = 'dream-card';
+    card.style.animationDelay = (i*0.05)+'s';
+    card.innerHTML = `
+      <div class="img-wrap"><img src="${esc(d.mediumUrl||d.url)}" alt="${esc(d.title)}" loading="lazy"></div>
+      <h3>${esc(d.title)}</h3>
+    `;
+    card.onclick = ()=>openDetail(d);
+    grid.appendChild(card);
+  });
+  $('emptyState').style.display = (loaded && items.length===0) ? 'flex' : 'none';
+}
+
+function openDetail(d){
+  currentDream = d;
+  $('detailImg').src = d.url;
+  $('detailTitle').textContent = d.title;
+  openSheet('detail');
+}
+
+function showPreview(src){
+  if(previewUrl){ URL.revokeObjectURL(previewUrl); previewUrl = null; }
+  if(!src){ $('imgPreview').style.display = 'none'; return; }
+  $('imgPreviewImg').src = src;
+  $('imgPreview').style.display = 'block';
+}
+
+function openAdd(){
+  editMode = false;
+  currentDream = null;
+  chosenFile = null;
+  $('formTitle').textContent = 'Add Dream';
+  $('formSaveBtn').textContent = 'Add Dream';
+  $('fTitle').value = '';
+  $('fImage').value = '';
+  $('fImageName').textContent = 'No image selected';
+  showPreview('');
+  openSheet('form');
+}
+
+function openEdit(){
+  if(!currentDream) return;
+  editMode = true;
+  chosenFile = null;
+  $('formTitle').textContent = 'Edit Dream';
+  $('formSaveBtn').textContent = 'Save Changes';
+  $('fTitle').value = currentDream.title;
+  $('fImage').value = '';
+  $('fImageName').textContent = 'Current image kept (choose to replace)';
+  showPreview(currentDream.mediumUrl || currentDream.url);
+  closeSheet('detail');
+  openSheet('form');
+}
+
+function imageChosen(){
+  const f = $('fImage').files && $('fImage').files[0];
+  if(!f) return;
+  chosenFile = f;
+  $('fImageName').textContent = f.name;
+  showPreview('');
+  previewUrl = URL.createObjectURL(f);
+  $('imgPreviewImg').src = previewUrl;
+  $('imgPreview').style.display = 'block';
+}
+
+async function saveDream(){
+  const title = $('fTitle').value.trim();
+  if(!title){ toast('Please give this dream a title'); return; }
+  if(!editMode && !chosenFile){ toast('Please choose an image'); return; }
+  if(chosenFile){
+    if(!chosenFile.type.startsWith('image/')){ toast('Only image files are supported'); return; }
+    if(chosenFile.size > MAX_MB*1024*1024){ toast('File too large (max '+MAX_MB+'MB)'); return; }
+  }
+  const btn = $('formSaveBtn'); btn.disabled = true;
+  try{
+    const up = chosenFile ? imgFields(await uploadToImgBB(chosenFile, p=>toast('Uploading… '+p+'%'))) : null;
+    if(editMode && currentDream){
+      const data = Object.assign({title}, up || {});
+      await window.dbUpd(currentDream.id, data);
+      Object.assign(currentDream, data);
+      toast('Dream updated');
+    } else {
+      const rec = Object.assign({title, created:Date.now()}, up);
+      rec.id = await window.dbAdd(rec);
+      dreams.unshift(rec);
+      toast('Dream added');
+    }
+    closeSheet('form');
+    render();
+  }catch(e){ toast('Failed: '+(e.message||'error')); }
+  btn.disabled = false;
+}
+
+async function deleteDream(){
+  if(!currentDream) return;
+  if(!confirm(`Delete "${currentDream.title}" from your dreams?`)) return;
+  try{
+    await window.dbDel(currentDream.id);
+    dreams = dreams.filter(d=>d.id!==currentDream.id);
+    closeSheet('detail');
+    toast('Dream deleted');
+    render();
+  }catch(e){ toast('Could not delete'); }
+}
+
+function openSheet(which){
+  $(which+'Backdrop').classList.add('show');
+  $(which+'Sheet').classList.add('show');
+}
+function closeSheet(which){
+  $(which+'Backdrop').classList.remove('show');
+  $(which+'Sheet').classList.remove('show');
+}
+
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+render();
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyB-kQFQbW6IeoC9bIiE89VQqX8oueHjsZU",
+  authDomain: "echoes-of-time-4f601.firebaseapp.com",
+  databaseURL: "https://echoes-of-time-4f601-default-rtdb.firebaseio.com",
+  projectId: "echoes-of-time-4f601",
+  storageBucket: "echoes-of-time-4f601.firebasestorage.app",
+  messagingSenderId: "118735611820",
+  appId: "1:118735611820:web:ca7745d7c2d2f15a113c09"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+window.dbAdd = async rec => { const {id, ...data} = rec; return (await addDoc(collection(db, 'dreams'), data)).id; };
+window.dbUpd = (id, data) => updateDoc(doc(db, 'dreams', id), data);
+window.dbDel = id => deleteDoc(doc(db, 'dreams', id));
+try{
+  const snap = await getDocs(collection(db, 'dreams'));
+  setData(snap.docs.map(d=>({id:d.id, ...d.data()})));
+}catch(e){ toast('Could not load dreams'); }
+</script>
+</body>
+</html>

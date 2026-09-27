@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Projects · Ehoes Of Time</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  --bg:#0b1220; --bg2:#141c2e;
+  --cream:#faf7f0; --cream-surface:#ffffff;
+  --gold:#d9a35c; --gold-soft:#e8c491;
+  --navy:#0f1626; --navy-soft:#1b2436;
+  --text:#1b1f27; --text-inv:#f5f1e8;
+  --muted:#8a8f9a; --muted-dark:#a9afc2;
+  --border:#eae6db; --border-dark:#2a3348;
+  --green:#3f8f52; --amber:#b28a3d; --blue:#3f6fb0;
+  --radius:20px; --radius-sm:12px; --radius-lg:28px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{font-family:'Georgia','Times New Roman',serif;background:var(--navy);color:var(--text);overflow-x:hidden;}
+.app-shell{max-width:480px;margin:0 auto;position:relative;min-height:100vh;background:var(--cream);}
+button{font-family:inherit;border:none;cursor:pointer;background:none;}
+svg{display:block;}
+a{text-decoration:none;color:inherit;}
+textarea,input,select{font-family:inherit;}
+
+/* ---------- HEADER ---------- */
+#page{padding-bottom:96px;}
+.header{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 14px;
+  background:var(--cream);z-index:15;
+  border-bottom:1px solid rgba(0,0,0,0.05);
+}
+.header-spacer{height:calc(env(safe-area-inset-top,0px) + 62px);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.back-btn{width:22px;height:22px;color:var(--navy);padding:6px;border-radius:50%;margin-left:-6px;transition:background .2s,transform .15s;}
+.back-btn:active{background:rgba(217,163,92,0.18);transform:scale(0.9);}
+.header-titles h1{font-size:19px;color:var(--navy);}
+.header-titles p{font-family:Georgia,serif;font-size:11.5px;color:var(--muted);margin-top:2px;}
+.icon-btn{width:22px;height:22px;color:var(--navy);padding:6px;border-radius:50%;transition:background .2s,transform .15s;position:relative;}
+.icon-btn:active{background:rgba(217,163,92,0.18);transform:scale(0.9);}
+
+/* ---------- SUMMARY CARD ---------- */
+.summary-card{
+  margin:16px 20px 6px;background:var(--navy);color:var(--text-inv);
+  border-radius:var(--radius);padding:18px 20px;
+  box-shadow:0 14px 30px rgba(15,22,38,0.28);
+}
+.summary-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.summary-top h2{font-size:17px;}
+.summary-nums{display:flex;gap:18px;}
+.snum{display:flex;flex-direction:column;}
+.snum b{font-size:19px;color:var(--gold-soft);}
+.snum span{font-size:10.5px;color:#c9cddb;margin-top:1px;}
+.summary-quote{font-style:italic;font-size:12px;color:#c9cddb;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);}
+
+/* ---------- SEARCH ---------- */
+.search-wrap{padding:16px 20px 0;}
+.search-box{
+  display:flex;align-items:center;gap:9px;background:#fff;
+  border:1px solid var(--border);border-radius:16px;padding:11px 14px;
+}
+.search-box svg{width:17px;height:17px;color:var(--muted);flex-shrink:0;}
+.search-box input{flex:1;border:none;outline:none;font-size:13.5px;color:var(--text);background:none;}
+.search-box input::placeholder{color:var(--muted);}
+
+/* ---------- FILTER PILLS ---------- */
+.filters{display:flex;gap:9px;padding:14px 20px 6px;overflow-x:auto;}
+.filters::-webkit-scrollbar{display:none;}
+.pill{
+  flex:0 0 auto;padding:8px 16px;border-radius:20px;font-size:12.5px;
+  border:1px solid var(--border);color:var(--muted);background:#fff;
+  transition:transform .15s ease,background .2s ease,color .2s ease;
+}
+.pill.active{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:#241705;border-color:transparent;font-weight:bold;}
+.pill:active{transform:scale(0.94);}
+
+/* ---------- PROJECT LIST ---------- */
+.proj-list{display:flex;flex-direction:column;gap:12px;padding:16px 20px 20px;}
+.proj-card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px 15px;box-shadow:0 8px 18px rgba(15,22,38,0.06);
+  transition:transform .15s ease,box-shadow .2s ease;
+  opacity:0;transform:translateY(8px);animation:cardIn .5s ease forwards;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.proj-card:active{transform:scale(0.98);}
+@keyframes cardIn{to{opacity:1;transform:translateY(0);}}
+.proj-avatar{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--m-bg,#eef1f5);color:var(--m-fg,#4a5568);
+  font-size:17px;font-weight:bold;overflow:hidden;
+}
+.proj-avatar img{width:100%;height:100%;object-fit:cover;}
+.proj-avatar svg{width:20px;height:20px;}
+.proj-body{flex:1;min-width:0;}
+.proj-body h3{font-size:14.5px;color:var(--navy);line-height:1.25;}
+.proj-type{font-family:Georgia,serif;font-size:10.5px;color:var(--muted);margin-top:1px;}
+.proj-desc{font-family:Georgia,serif;font-size:12px;color:var(--muted);margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.proj-tech{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.proj-tech span{font-size:10px;color:var(--navy);background:rgba(15,22,38,0.06);padding:3px 8px;border-radius:8px;}
+.proj-status{display:flex;align-items:center;gap:5px;margin-top:9px;font-size:10.5px;font-weight:bold;}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot.active{background:var(--green);} .st-active{color:var(--green);}
+.dot.development{background:var(--amber);} .st-development{color:var(--amber);}
+.dot.paused{background:var(--muted);} .st-paused{color:var(--muted);}
+.dot.archived{background:#8a5a5a;} .st-archived{color:#8a5a5a;}
+
+/* ---------- EMPTY STATE ---------- */
+.empty-state{display:none;flex-direction:column;align-items:center;text-align:center;padding:60px 30px;gap:10px;}
+.empty-state.show{display:flex;}
+.empty-emoji{font-size:44px;margin-bottom:4px;}
+.empty-state h3{font-size:16px;color:var(--navy);}
+.empty-state p{font-size:12.5px;color:var(--muted);line-height:1.5;max-width:260px;}
+.empty-state .btn-primary{margin-top:8px;padding:12px 22px;border-radius:16px;font-size:13.5px;font-weight:bold;}
+
+/* ---------- BOTTOM NAV ---------- */
+.bottom-nav{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:0;width:100%;max-width:480px;
+  background:var(--cream-surface);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px));
+  z-index:20;
+}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;
+  padding:4px 10px;border-radius:14px;transition:transform .15s ease,background .2s ease,color .2s ease;}
+.nav-item svg{width:21px;height:21px;}
+.nav-item.active{color:var(--gold);background:rgba(217,163,92,0.12);}
+.nav-item:active{transform:scale(0.88);background:rgba(217,163,92,0.16);}
+.nav-fab{
+  width:50px;height:50px;border-radius:50%;background:var(--navy);
+  display:flex;align-items:center;justify-content:center;margin-top:-26px;
+  box-shadow:0 8px 18px rgba(15,22,38,0.35);border:4px solid var(--cream-surface);
+  transition:transform .18s ease,box-shadow .25s ease;
+  animation:fabPulse 2.6s ease-in-out infinite;
+}
+.nav-fab:active{transform:scale(0.9);}
+.nav-fab svg{width:20px;height:20px;color:var(--gold-soft);}
+@keyframes fabPulse{
+  0%,100%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 0 rgba(217,163,92,0.25);}
+  50%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 7px rgba(217,163,92,0);}
+}
+
+/* ---------- SHEET / MODAL ---------- */
+.sheet-backdrop{
+  position:fixed;inset:0;background:rgba(15,22,38,0.5);z-index:60;
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.sheet-backdrop.show{opacity:1;pointer-events:auto;}
+.sheet{
+  position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);
+  width:100%;max-width:480px;background:var(--cream);
+  border-radius:24px 24px 0 0;z-index:61;padding:22px 22px calc(24px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -14px 40px rgba(15,22,38,0.3);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+  max-height:88vh;overflow-y:auto;
+}
+.sheet.show{transform:translate(-50%,0);}
+.sheet-handle{width:40px;height:4px;border-radius:3px;background:var(--border);margin:0 auto 16px;}
+.sheet h2{font-size:19px;color:var(--navy);margin-bottom:2px;}
+.sheet-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:5px;}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--border);
+  font-size:14px;color:var(--text);background:#fff;
+}
+.field textarea{resize:vertical;min-height:64px;line-height:1.5;}
+.field-hint{font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.4;}
+
+.accordion{border:1px solid var(--border);border-radius:14px;margin-bottom:12px;background:#fff;overflow:hidden;}
+.acc-head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;font-size:13.5px;color:var(--navy);font-weight:bold;}
+.acc-head svg{width:15px;height:15px;color:var(--muted);transition:transform .2s ease;}
+.acc-head.open svg{transform:rotate(180deg);}
+.acc-body{padding:0 14px 14px;display:none;}
+.acc-body.open{display:block;}
+
+.sheet-actions{display:flex;gap:10px;margin-top:18px;}
+.sheet-actions button{flex:1;padding:13px;border-radius:16px;font-size:14px;font-weight:bold;}
+.btn-secondary{background:#fff;border:1px solid var(--border);color:var(--navy);}
+.btn-primary{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:#241705;}
+.btn-danger{background:#fff;border:1px solid #e3b3b3;color:#a23f3f;}
+
+/* ---------- DETAIL SHEET ---------- */
+.detail-avatar{
+  width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+  background:var(--m-bg,#eef1f5);color:var(--m-fg,#4a5568);margin-bottom:14px;
+  font-size:22px;font-weight:bold;overflow:hidden;
+}
+.detail-avatar img{width:100%;height:100%;object-fit:cover;}
+.detail-avatar svg{width:26px;height:26px;}
+.detail-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:bold;
+  padding:4px 10px;border-radius:10px;margin-top:6px;}
+.section-title{font-size:13px;color:var(--navy);font-weight:bold;margin:20px 0 10px;display:flex;align-items:center;gap:7px;}
+.section-title svg{width:15px;height:15px;color:var(--gold);}
+.detail-row{display:flex;flex-direction:column;gap:3px;padding:9px 0;border-bottom:1px solid var(--border);}
+.detail-row:last-child{border-bottom:none;}
+.detail-row label{font-size:10.5px;color:var(--muted);letter-spacing:.3px;}
+.detail-row .val{font-size:13.5px;color:var(--navy);word-break:break-word;}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:7px;}
+.tag{font-size:11px;color:var(--navy);background:rgba(15,22,38,0.06);padding:5px 11px;border-radius:10px;}
+.link-row{display:flex;gap:8px;margin-top:8px;}
+.mini-btn{font-size:12px;color:var(--gold);background:rgba(217,163,92,0.12);padding:7px 12px;border-radius:10px;transition:transform .15s;flex:1;text-align:center;}
+.mini-btn:active{transform:scale(0.95);}
+.na{font-size:12.5px;color:var(--muted);font-style:italic;}
+.list-entry{background:#faf7f0;border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.list-entry b{font-size:13px;color:var(--navy);display:block;margin-bottom:3px;}
+.cred-row{display:flex;align-items:center;gap:6px;margin-top:2px;}
+.cred-row .val{font-size:11.5px;color:var(--muted);}
+.copy-ic{width:14px;height:14px;color:var(--gold);flex-shrink:0;padding:3px;}
+.notes-block{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;background:#faf7f0;border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.sec-note{margin-top:6px;font-family:Georgia,serif;font-size:11.5px;color:var(--muted);
+  background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px 12px;line-height:1.5;}
+
+/* ---------- IMAGE PICKER (logo/icon via imgbb) ---------- */
+.img-pick-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+.img-thumb{position:relative;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;}
+.img-thumb img{width:100%;height:100%;object-fit:cover;}
+.img-thumb .rm{position:absolute;top:2px;right:2px;width:16px;height:16px;background:rgba(15,22,38,0.7);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;}
+.img-thumb .rm svg{width:9px;height:9px;color:#fff;}
+.img-thumb.uploading{opacity:.5;}
+.img-thumb .spin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,22,38,.35);color:#fff;font-size:9px;}
+.img-add-btn{width:64px;height:64px;border-radius:10px;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.img-add-btn svg{width:20px;height:20px;color:var(--muted);}
+
+/* ---------- DETAIL GALLERY ---------- */
+.detail-gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:2px;}
+.gal-item{position:relative;flex-shrink:0;}
+.gal-item img{width:88px;height:88px;object-fit:cover;border-radius:12px;border:1px solid var(--border);}
+.gal-dl{position:absolute;bottom:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(15,22,38,0.75);
+  display:flex;align-items:center;justify-content:center;}
+.gal-dl svg{width:11px;height:11px;color:#fff;}
+
+/* ---------- CONFIRM DELETE ---------- */
+.confirm-sheet{padding-bottom:calc(22px + env(safe-area-inset-bottom,0px));}
+.confirm-sheet p{font-size:13.5px;color:var(--text);margin-bottom:4px;}
+
+/* ---------- TOAST ---------- */
+#toast{
+  position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:var(--text-inv);padding:11px 20px;border-radius:24px;
+  font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  z-index:100;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.3);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ---------- MENU DROPDOWN ---------- */
+.menu-dropdown{
+  position:absolute;top:38px;right:0;background:#fff;border:1px solid var(--border);
+  border-radius:14px;box-shadow:0 12px 28px rgba(15,22,38,0.18);
+  min-width:150px;overflow:hidden;z-index:30;
+  opacity:0;transform:translateY(-6px) scale(0.97);pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.menu-dropdown.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+.menu-dropdown button{display:block;width:100%;text-align:left;padding:11px 14px;font-size:13px;color:var(--navy);}
+.menu-dropdown button:active{background:rgba(217,163,92,0.12);}
+
+@media(min-width:768px){
+  .app-shell{border-left:1px solid var(--border);border-right:1px solid var(--border);}
+}
+
+/* ==========================================================
+   DESKTOP (>=900px) — left sidebar nav + centered dialogs
+   ========================================================== */
+@media (min-width:900px){
+  :root{--sidebar-w:88px;}
+
+  .app-shell{max-width:none;margin:0 0 0 var(--sidebar-w);}
+
+  .header{left:var(--sidebar-w);right:0;top:0;transform:none;margin:0;width:auto;max-width:none;padding-left:32px;padding-right:32px;}
+
+  #page{padding-bottom:40px;}
+
+  .bottom-nav{
+    left:0;right:auto;top:0;bottom:0;transform:none;margin:0;
+    width:var(--sidebar-w);max-width:none;height:100vh;
+    flex-direction:column;justify-content:flex-start;align-items:center;
+    gap:8px;padding:28px 0 20px;
+    border-top:none;border-right:1px solid var(--border);
+  }
+  .nav-item{width:64px;padding:8px 4px;}
+  .nav-fab{margin-top:4px;order:-1;}
+  .fab{bottom:24px;}
+
+  .sheet{
+    left:50%;top:50%;bottom:auto;right:auto;
+    width:92%;max-width:440px;max-height:86vh;
+    border-radius:24px;
+    transform:translate(-50%,-50%) scale(.95);
+    opacity:0;pointer-events:none;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+  }
+  .sheet.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+
+.proj-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:0 32px 32px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <section id="page">
+    <header class="header">
+      <div class="header-left">
+        <a href="index.html" class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <div class="header-titles">
+          <h1>My Projects</h1>
+          <p>Apps &amp; websites I've built</p>
+        </div>
+      </div>
+      <div style="position:relative;">
+        <button class="icon-btn" onclick="toggleMenu()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        </button>
+        <div class="menu-dropdown" id="pageMenu">
+          <button onclick="closeMenu();toast('Sorted by newest')">Sort by newest</button>
+          <button onclick="closeMenu();toast('Sorted by name')">Sort by name</button>
+        </div>
+      </div>
+    </header>
+    <div class="header-spacer"></div>
+
+    <div class="summary-card">
+      <div class="summary-top"><h2>My Projects</h2></div>
+      <div class="summary-nums">
+        <div class="snum"><b id="cAll">0</b><span>Projects</span></div>
+        <div class="snum"><b id="cActive">0</b><span>Active</span></div>
+      </div>
+      <div class="summary-quote">"Your digital creations, organized in one place."</div>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="searchInput" placeholder="Search projects..." oninput="render()">
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="pill active" data-f="all" onclick="setFilter(this)">All</div>
+      <div class="pill" data-f="website" onclick="setFilter(this)">Website</div>
+      <div class="pill" data-f="app" onclick="setFilter(this)">App</div>
+      <div class="pill" data-f="other" onclick="setFilter(this)">Others</div>
+    </div>
+
+    <div class="proj-list" id="projList"></div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-emoji">💻</div>
+      <h3>No projects yet</h3>
+      <p>Start documenting the apps and websites you create.</p>
+      <button class="btn-primary" onclick="openAdd()">+ Add Project</button>
+    </div>
+  </section>
+
+  <!-- DETAIL SHEET -->
+  <div class="sheet-backdrop" id="detailBackdrop" onclick="closeSheet('detail')"></div>
+  <div class="sheet" id="detailSheet">
+    <div class="sheet-handle"></div>
+    <div class="detail-avatar" id="dAvatar"></div>
+    <h2 id="dName">Project</h2>
+    <p class="sheet-sub" id="dType" style="margin-bottom:2px;">Type</p>
+    <span class="detail-status" id="dStatus">Active</span>
+
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.5"/><path d="M20 15l-5-5-9 9"/></svg>Logo / Icon / Screenshots</div>
+    <div class="detail-gallery" id="dGallery"></div>
+
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/></svg>Overview</div>
+    <div class="detail-row"><label>Created</label><div class="val" id="dCreated">—</div></div>
+    <div class="detail-row"><label>Description</label><div class="val" id="dDesc">—</div></div>
+
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>Technology</div>
+    <div class="tag-wrap" id="dTech"></div>
+
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 00-3.16 19.49"/></svg>Links</div>
+    <div class="detail-row"><label>Source code file (backup)</label></div>
+    <div class="link-row" id="dSourceLinkRow"></div>
+    <div class="detail-row"><label>GitHub</label></div>
+    <div class="link-row" id="dGithubRow"></div>
+    <div class="detail-row"><label>Live App / Website</label></div>
+    <div class="link-row" id="dLiveRow"></div>
+
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Database</div>
+    <div class="detail-row"><label>Service used</label><div class="val" id="dDbProvider">—</div></div>
+    <div class="detail-row"><label>Account email</label><div class="val" id="dDbEmail">—</div></div>
+    <div class="detail-row"><label>Notes</label><div class="val" id="dDbNotes">—</div></div>
+
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-4 5-5.5 7-5.5S18.5 16 20 20"/></svg>Software &amp; Services Used</div>
+    <div id="dServices"></div>
+
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20V10M12 10c0-3 2-5 6-5-1 4-2 5-6 5ZM12 10c0-2.5-1.5-4-5-4 .8 3 2 4 5 4Z"/></svg>General Notes</div>
+    <div class="notes-block" id="dNotes">—</div>
+
+    <div class="sheet-actions">
+      <button class="btn-danger" onclick="askDelete()">Delete</button>
+      <button class="btn-secondary" onclick="openEdit()">Edit</button>
+      <button class="btn-primary" onclick="closeSheet('detail')">Close</button>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT SHEET -->
+  <div class="sheet-backdrop" id="formBackdrop" onclick="closeSheet('form')"></div>
+  <div class="sheet" id="formSheet">
+    <div class="sheet-handle"></div>
+    <h2 id="formTitle">Add Project</h2>
+    <p class="sheet-sub">Synced to your private vault database.</p>
+
+    <div class="field"><label>App / Website name</label><input id="fName" placeholder="e.g. Volunteer Flow"></div>
+    <div class="field"><label>Project type</label>
+      <select id="fType"><option value="website">Website</option><option value="app">App</option><option value="other">Other</option></select>
+    </div>
+    <div class="field"><label>Short description</label><textarea id="fDesc" placeholder="One line about what this project is"></textarea></div>
+    <div class="field"><label>Status</label>
+      <select id="fStatus"><option value="active">Active</option><option value="development">Development</option><option value="paused">Paused</option><option value="archived">Archived</option></select>
+    </div>
+    <div class="field"><label>Created date</label><input id="fCreated" type="month"></div>
+    <div class="field"><label>Technologies</label><input id="fTech" placeholder="HTML, CSS, JavaScript"></div>
+
+    <div class="field">
+      <label>Logo, icon or screenshots</label>
+      <div class="img-pick-row" id="imgPickRow">
+        <button type="button" class="img-add-btn" onclick="document.getElementById('fImageInput').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <input type="file" id="fImageInput" accept="image/*" multiple style="display:none" onchange="handleImagePick(event)">
+      <div class="field-hint">Uploaded to imgbb — downloadable later from the project's detail view.</div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-head" onclick="toggleAcc(this)">Links <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="acc-body">
+        <div class="field"><label>Source code file link (e.g. Google Drive zip/backup)</label><input id="fSourceLink" placeholder="https://drive.google.com/..."></div>
+        <div class="field"><label>GitHub link</label><input id="fGithub" placeholder="https://github.com/..."></div>
+        <div class="field"><label>App / Website link (live)</label><input id="fLive" placeholder="https://..."></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-head" onclick="toggleAcc(this)">Database <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="acc-body">
+        <div class="field"><label>Database service used</label><input id="fDbProvider" placeholder="e.g. Firebase, Supabase"></div>
+        <div class="field"><label>Account email</label><input id="fDbEmail" placeholder="Email used to open the database account"></div>
+        <div class="field"><label>Notes</label><textarea id="fDbNotes" placeholder="Any other notes to remember"></textarea></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="acc-head" onclick="toggleAcc(this)">Software &amp; Services Used <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="acc-body">
+        <div class="field"><label>One per line — add as many as needed</label>
+          <textarea id="fServices" placeholder="Firebase | you@email.com | myPassword123&#10;imgbb | you@email.com | myPassword123"></textarea>
+          <div class="field-hint">Format: Software/Service name | Login email | Password</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field"><label>General notes</label><textarea id="fNotes" placeholder="Anything you might forget later" style="min-height:80px;"></textarea></div>
+
+    <div class="sec-note">Saved privately to your own vault database — visible only to you.</div>
+
+    <div class="sheet-actions">
+      <button class="btn-secondary" onclick="closeSheet('form')">Cancel</button>
+      <button class="btn-primary" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM SHEET -->
+  <div class="sheet-backdrop" id="confirmBackdrop" onclick="closeSheet('confirm')"></div>
+  <div class="sheet confirm-sheet" id="confirmSheet">
+    <div class="sheet-handle"></div>
+    <h2>Delete this project?</h2>
+    <p>This can't be undone.</p>
+    <div class="sheet-actions">
+      <button class="btn-secondary" onclick="closeSheet('confirm')">Cancel</button>
+      <button class="btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+      Home
+    </a>
+    <a href="photos.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+      Explore
+    </a>
+    <div class="nav-fab" onclick="openAdd()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    </div>
+    <a href="diary.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/></svg>
+      Journal
+    </a>
+    <div class="nav-item" onclick="toast('Settings coming soon')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.9 2.9l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.9-2.9l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.9-2.9l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.6V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.9 2.9l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.6 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.6 1Z"/></svg>
+      Settings
+    </div>
+  </nav>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+/* ---------- AVATAR COLOR PALETTE (by type) ---------- */
+const ICONS = {
+  website:'<path d="M4 5h16v14H4z"/><path d="M4 9h16M8 5v4"/>',
+  app:'<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 18h4"/>',
+  other:'<path d="M12 2l3 6 6.5 1-4.7 4.6L18 20l-6-3.2L6 20l1.2-6.4L2.5 9 9 8z"/>'
+};
+const COLORS = {
+  website:['#e3ecf7','#3f6fb0'], app:['#ede6f5','#7e56a8'], other:['#f2ecdd','#b28a3d']
+};
+
+const IMGBB_API_KEY = "421680dbf325e616b275a9511c0defd5";
+let pendingImages = [];
+
+function uploadToImgBB(file, onPct){
+  return new Promise((resolve, reject)=>{
+    const fd = new FormData(); fd.append('image', file);
+    const x = new XMLHttpRequest();
+    x.open('POST', 'https://api.imgbb.com/1/upload?key='+encodeURIComponent(IMGBB_API_KEY));
+    x.upload.onprogress = e => { if(e.lengthComputable) onPct(Math.round(e.loaded/e.total*100)); };
+    x.onload = () => { try{ const j = JSON.parse(x.responseText); j.success ? resolve(j.data) : reject(new Error(j.error && j.error.message || 'Upload failed')); }catch(e){ reject(e); } };
+    x.onerror = () => reject(new Error('Network error'));
+    x.send(fd);
+  });
+}
+
+async function handleImagePick(ev){
+  const files = Array.from(ev.target.files||[]);
+  ev.target.value = '';
+  for(const f of files){
+    const slot = {url:null, thumbUrl:null, uploading:true};
+    pendingImages.push(slot);
+    renderImgPicks();
+    try{
+      const r = await uploadToImgBB(f, ()=>{});
+      slot.url = r.url; slot.thumbUrl = (r.thumb&&r.thumb.url)||r.url; slot.uploading = false;
+    }catch(e){
+      pendingImages.splice(pendingImages.indexOf(slot),1);
+      toast('Image upload failed');
+    }
+    renderImgPicks();
+  }
+}
+function removeImgPick(i){
+  pendingImages.splice(i,1);
+  renderImgPicks();
+}
+function renderImgPicks(){
+  const row = document.getElementById('imgPickRow');
+  row.innerHTML = '';
+  pendingImages.forEach((img,i)=>{
+    const d = document.createElement('div');
+    d.className = 'img-thumb' + (img.uploading ? ' uploading' : '');
+    d.innerHTML = (img.thumbUrl ? `<img src="${img.thumbUrl}">` : '') +
+      (img.uploading ? '<div class="spin">…</div>' : `<div class="rm" onclick="removeImgPick(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></div>`);
+    row.appendChild(d);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.type='button'; addBtn.className='img-add-btn';
+  addBtn.onclick = ()=>document.getElementById('fImageInput').click();
+  addBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>';
+  row.appendChild(addBtn);
+}
+
+let projects = [];
+let currentFilter = 'all';
+let editingId = null;
+let deleteTargetId = null;
+
+function parseLines(str, keys){
+  return (str||'').split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
+    const parts = line.split('|').map(p=>p.trim());
+    const obj = {};
+    keys.forEach((k,i)=> obj[k] = parts[i] || '');
+    return obj;
+  });
+}
+
+function render(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const list = document.getElementById('projList');
+  list.innerHTML = '';
+
+  const filtered = projects.filter(p=>{
+    const matchFilter = currentFilter==='all' || p.type===currentFilter;
+    const hay = (p.name+' '+p.desc+' '+p.tech+' '+p.type+' '+p.status).toLowerCase();
+    const matchSearch = !q || hay.includes(q);
+    return matchFilter && matchSearch;
+  });
+
+  document.getElementById('emptyState').classList.toggle('show', projects.length===0);
+  list.style.display = projects.length===0 ? 'none' : 'flex';
+
+  filtered.forEach((p,i)=>{
+    const [bg,fg] = COLORS[p.type] || COLORS.other;
+    const card = document.createElement('div');
+    card.className = 'proj-card';
+    card.style.animationDelay = (i*0.04)+'s';
+    const tech = (p.tech||'').split(',').map(t=>t.trim()).filter(Boolean).slice(0,4);
+    const thumbImg = (p.images && p.images[0]) ? (p.images[0].thumbUrl||p.images[0].url) : null;
+    card.innerHTML = `
+      <div class="proj-avatar" style="--m-bg:${bg};--m-fg:${fg}">
+        ${thumbImg ? `<img src="${escapeHtml(thumbImg)}">` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[p.type]||ICONS.other}</svg>`}
+      </div>
+      <div class="proj-body">
+        <h3>${escapeHtml(p.name)}</h3>
+        <div class="proj-type">${cap(p.type)}</div>
+        <div class="proj-desc">${escapeHtml(p.desc||'No description yet.')}</div>
+        <div class="proj-tech">${tech.map(t=>`<span>${escapeHtml(t)}</span>`).join('')}</div>
+        <div class="proj-status"><span class="dot ${p.status}"></span><span class="st-${p.status}">${cap(p.status)}</span></div>
+      </div>`;
+    card.onclick = ()=>openDetail(p.id);
+    list.appendChild(card);
+  });
+
+  document.getElementById('cAll').textContent = String(projects.length).padStart(2,'0');
+  document.getElementById('cActive').textContent = String(projects.filter(p=>p.status==='active').length).padStart(2,'0');
+}
+
+function setFilter(el){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = el.dataset.f;
+  render();
+}
+
+function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function openDetail(id){
+  const p = projects.find(x=>x.id===id);
+  if(!p) return;
+  editingId = id;
+  const [bg,fg] = COLORS[p.type] || COLORS.other;
+  const av = document.getElementById('dAvatar');
+  av.style.setProperty('--m-bg',bg);
+  av.style.setProperty('--m-fg',fg);
+  if(p.images && p.images.length){
+    av.innerHTML = `<img src="${escapeHtml(p.images[0].thumbUrl||p.images[0].url)}">`;
+  } else {
+    av.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${ICONS[p.type]||ICONS.other}</svg>`;
+  }
+
+  document.getElementById('dName').textContent = p.name;
+  document.getElementById('dType').textContent = cap(p.type);
+  const stEl = document.getElementById('dStatus');
+  stEl.textContent = cap(p.status);
+  stEl.style.color = {active:'#3f8f52',development:'#b28a3d',paused:'#8a8f9a',archived:'#a23f3f'}[p.status];
+  stEl.style.background = {active:'rgba(63,143,82,0.12)',development:'rgba(178,138,61,0.12)',paused:'rgba(138,143,154,0.12)',archived:'rgba(162,63,63,0.12)'}[p.status];
+
+  const galWrap = document.getElementById('dGallery');
+  const images = p.images || [];
+  galWrap.innerHTML = images.length ? images.map(im=>`
+    <div class="gal-item">
+      <img src="${escapeHtml(im.thumbUrl||im.url)}" onclick="window.open('${escapeHtml(im.url)}','_blank')">
+      <a class="gal-dl" href="${escapeHtml(im.url)}" download target="_blank" rel="noopener" onclick="event.stopPropagation()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12M7 11l5 5 5-5M5 20h14"/></svg>
+      </a>
+    </div>`).join('') : '<span class="na">Not added yet</span>';
+
+  document.getElementById('dCreated').textContent = p.created ? monthLabel(p.created) : 'Not added yet';
+  document.getElementById('dDesc').textContent = p.desc || 'No description yet.';
+
+  const techWrap = document.getElementById('dTech');
+  techWrap.innerHTML = '';
+  (p.tech||'').split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>{
+    const tag = document.createElement('span'); tag.className='tag'; tag.textContent=t; techWrap.appendChild(tag);
+  });
+  if(!techWrap.children.length) techWrap.innerHTML = '<span class="na">Not added yet</span>';
+
+  const srcRow = document.getElementById('dSourceLinkRow');
+  srcRow.innerHTML = p.sourceLink ? `<a class="mini-btn" href="${escapeHtml(p.sourceLink)}" target="_blank" rel="noopener">Open File</a><button class="mini-btn" onclick="copyText('${escapeHtml(p.sourceLink)}')">Copy URL</button>` : '<span class="na">Not added yet</span>';
+
+  const ghRow = document.getElementById('dGithubRow');
+  ghRow.innerHTML = p.github ? `<a class="mini-btn" href="${escapeHtml(p.github)}" target="_blank" rel="noopener">Open GitHub</a><button class="mini-btn" onclick="copyText('${escapeHtml(p.github)}')">Copy URL</button>` : '<span class="na">Not added yet</span>';
+
+  const liveRow = document.getElementById('dLiveRow');
+  liveRow.innerHTML = p.live ? `<a class="mini-btn" href="${escapeHtml(p.live)}" target="_blank" rel="noopener">Open Website</a><button class="mini-btn" onclick="copyText('${escapeHtml(p.live)}')">Copy URL</button>` : '<span class="na">Not added yet</span>';
+
+  document.getElementById('dDbProvider').textContent = p.dbProvider || 'Not added yet';
+  document.getElementById('dDbEmail').textContent = p.dbEmail || 'Not added yet';
+  document.getElementById('dDbNotes').textContent = p.dbNotes || 'Not added yet';
+
+  const svWrap = document.getElementById('dServices');
+  const services = parseLines(p.services, ['name','email','pass']);
+  svWrap.innerHTML = services.length ? services.map(s=>`<div class="list-entry"><b>${escapeHtml(s.name)}</b>
+    ${s.email?`<div class="cred-row"><span class="val">✉️ ${escapeHtml(s.email)}</span><svg class="copy-ic" onclick="copyText('${escapeHtml(s.email)}')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/></svg></div>`:''}
+    ${s.pass?`<div class="cred-row"><span class="val">🔑 ${escapeHtml(s.pass)}</span><svg class="copy-ic" onclick="copyText('${escapeHtml(s.pass)}')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/></svg></div>`:''}
+    </div>`).join('') : '<span class="na">Not added yet</span>';
+
+  document.getElementById('dNotes').textContent = p.notes || 'Not added yet';
+
+  openSheet('detail');
+}
+
+function monthLabel(ym){
+  const [y,m] = ym.split('-');
+  const d = new Date(Number(y), Number(m)-1, 1);
+  return d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+}
+
+function copyText(t){ navigator.clipboard?.writeText(t).catch(()=>{}); toast('Copied to clipboard'); }
+
+function openAdd(){
+  editingId = null;
+  document.getElementById('formTitle').textContent = 'Add Project';
+  ['fName','fDesc','fCreated','fTech','fSourceLink','fGithub','fLive','fDbProvider','fDbEmail','fDbNotes','fServices','fNotes']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fType').value = 'website';
+  document.getElementById('fStatus').value = 'active';
+  pendingImages = [];
+  renderImgPicks();
+  openSheet('form');
+}
+
+function openEdit(){
+  const p = projects.find(x=>x.id===editingId);
+  if(!p) return;
+  document.getElementById('formTitle').textContent = 'Edit Project';
+  document.getElementById('fName').value = p.name;
+  document.getElementById('fType').value = p.type;
+  document.getElementById('fDesc').value = p.desc;
+  document.getElementById('fStatus').value = p.status;
+  document.getElementById('fCreated').value = p.created;
+  document.getElementById('fTech').value = p.tech;
+  document.getElementById('fSourceLink').value = p.sourceLink || '';
+  document.getElementById('fGithub').value = p.github;
+  document.getElementById('fLive').value = p.live;
+  document.getElementById('fDbProvider').value = p.dbProvider;
+  document.getElementById('fDbEmail').value = p.dbEmail || '';
+  document.getElementById('fDbNotes').value = p.dbNotes;
+  document.getElementById('fServices').value = p.services;
+  document.getElementById('fNotes').value = p.notes;
+  pendingImages = (p.images||[]).slice();
+  renderImgPicks();
+  closeSheet('detail');
+  openSheet('form');
+}
+
+async function saveProject(){
+  const name = document.getElementById('fName').value.trim();
+  if(!name){ toast('Please enter a project name'); return; }
+  if(pendingImages.some(i=>i.uploading)){ toast('Please wait for images to finish uploading'); return; }
+  const data = {
+    name,
+    type: document.getElementById('fType').value,
+    desc: document.getElementById('fDesc').value.trim(),
+    status: document.getElementById('fStatus').value,
+    created: document.getElementById('fCreated').value,
+    tech: document.getElementById('fTech').value.trim(),
+    sourceLink: document.getElementById('fSourceLink').value.trim(),
+    github: document.getElementById('fGithub').value.trim(),
+    live: document.getElementById('fLive').value.trim(),
+    dbProvider: document.getElementById('fDbProvider').value.trim(),
+    dbEmail: document.getElementById('fDbEmail').value.trim(),
+    dbNotes: document.getElementById('fDbNotes').value.trim(),
+    services: document.getElementById('fServices').value.trim(),
+    notes: document.getElementById('fNotes').value.trim(),
+    images: pendingImages.map(i=>({url:i.url, thumbUrl:i.thumbUrl}))
+  };
+
+  try{
+    if(editingId){
+      await window.dbUpdProject(editingId, data);
+      const idx = projects.findIndex(p=>p.id===editingId);
+      projects[idx] = {...projects[idx], ...data};
+      toast('Project updated');
+    } else {
+      const rec = {...data, createdAt: Date.now()};
+      rec.id = await window.dbAddProject(rec);
+      projects.unshift(rec);
+      toast('Project saved');
+    }
+    closeSheet('form');
+    render();
+  }catch(e){ toast('Could not save'); }
+}
+
+function askDelete(){ deleteTargetId = editingId; openSheet('confirm'); }
+async function confirmDelete(){
+  try{
+    await window.dbDelProject(deleteTargetId);
+    projects = projects.filter(p=>p.id!==deleteTargetId);
+    closeSheet('confirm');
+    closeSheet('detail');
+    toast('Project deleted');
+    render();
+  }catch(e){ toast('Could not delete'); }
+}
+
+function toggleAcc(head){
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+function toggleMenu(){ document.getElementById('pageMenu').classList.toggle('show'); }
+function closeMenu(){ document.getElementById('pageMenu').classList.remove('show'); }
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.icon-btn') && !e.target.closest('.menu-dropdown')) closeMenu();
+});
+
+function openSheet(which){
+  document.getElementById(which+'Backdrop').classList.add('show');
+  document.getElementById(which+'Sheet').classList.add('show');
+}
+function closeSheet(which){
+  document.getElementById(which+'Backdrop').classList.remove('show');
+  document.getElementById(which+'Sheet').classList.remove('show');
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+render();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyB-kQFQbW6IeoC9bIiE89VQqX8oueHjsZU",
+  authDomain: "echoes-of-time-4f601.firebaseapp.com",
+  databaseURL: "https://echoes-of-time-4f601-default-rtdb.firebaseio.com",
+  projectId: "echoes-of-time-4f601",
+  storageBucket: "echoes-of-time-4f601.firebasestorage.app",
+  messagingSenderId: "118735611820",
+  appId: "1:118735611820:web:ca7745d7c2d2f15a113c09"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+const PROJECTS = collection(db, 'projects');
+
+window.dbAddProject = async rec => { const {id, ...data} = rec; return (await addDoc(PROJECTS, data)).id; };
+window.dbUpdProject = (id, data) => updateDoc(doc(PROJECTS, id), data);
+window.dbDelProject = id => deleteDoc(doc(PROJECTS, id));
+
+try{
+  const snap = await getDocs(PROJECTS);
+  projects = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  render();
+}catch(e){ toast('Could not load projects'); }
+</script>
+</body>
+</html>

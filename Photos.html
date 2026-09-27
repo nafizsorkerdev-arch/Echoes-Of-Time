@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Photos · Ehoes Of Time</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  --cream:#faf7f0; --white:#fff; --gold:#d9a35c; --gold-soft:#e8c491;
+  --navy:#0f1626; --text:#1b1f27; --muted:#8a8f9a; --border:#eae6db;
+  --radius:20px; --radius-sm:12px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--navy);color:var(--text);overflow-x:hidden;}
+.app-shell{max-width:480px;margin:0 auto;position:relative;min-height:100vh;background:var(--cream);}
+button{font-family:inherit;border:none;cursor:pointer;background:none;}
+svg{display:block;}
+a{text-decoration:none;color:inherit;}
+
+/* header */
+#page{padding-bottom:96px;}
+.header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 14px;background:var(--cream);z-index:15;border-bottom:1px solid rgba(0,0,0,.05);}
+.header-spacer{height:calc(env(safe-area-inset-top,0px) + 62px);}
+.header-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.icon-btn{width:34px;height:34px;color:var(--navy);padding:6px;border-radius:50%;flex:0 0 auto;transition:background .2s,transform .15s;}
+.icon-btn:active{background:rgba(217,163,92,.18);transform:scale(.9);}
+.header-titles{min-width:0;}
+.header-titles h1{font-size:19px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header-titles p{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+/* grids */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 20px 20px;}
+.grid.photos{grid-template-columns:repeat(3,1fr);gap:6px;padding:12px 12px 20px;}
+.album-card{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:.85/1;background:linear-gradient(135deg,#e9ecf2,#dfe3ea);box-shadow:0 10px 24px rgba(15,22,38,.12);transition:transform .18s;opacity:0;transform:translateY(10px);animation:cardIn .6s ease forwards;}
+.album-card:active{transform:scale(.96);}
+.album-card img{width:100%;height:100%;object-fit:cover;}
+.album-overlay{position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(180deg,transparent,rgba(15,22,38,.75) 78%);}
+.album-overlay h3{font-size:14.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.album-overlay span{font-size:12px;color:#e7e9f0;}
+.tile{aspect-ratio:1/1;border-radius:var(--radius-sm);overflow:hidden;background:#e9ecf2;opacity:0;animation:cardIn .5s ease forwards;}
+.tile img{width:100%;height:100%;object-fit:cover;}
+.tile:active{transform:scale(.96);}
+@keyframes cardIn{to{opacity:1;transform:translateY(0);}}
+.msg{grid-column:1/-1;padding:60px 30px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.7;}
+
+/* fab + nav */
+.fab{position:fixed;right:20px;bottom:96px;z-index:25;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold-soft),var(--gold));display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(217,163,92,.35);transition:transform .18s;}
+.fab:active{transform:scale(.9);}
+.fab svg{width:22px;height:22px;color:#241705;}
+.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;background:var(--white);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px));z-index:20;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;padding:4px 10px;border-radius:14px;transition:transform .15s,background .2s;}
+.nav-item svg{width:21px;height:21px;}
+.nav-item.active{color:var(--gold);background:rgba(217,163,92,.12);}
+.nav-item:active{transform:scale(.88);}
+.nav-fab{width:50px;height:50px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 8px 18px rgba(15,22,38,.35);border:4px solid var(--white);}
+.nav-fab:active{transform:scale(.9);}
+.nav-fab svg{width:20px;height:20px;color:var(--gold-soft);}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(15,22,38,.55);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s;}
+.scrim.show{opacity:1;pointer-events:auto;}
+.sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);width:100%;max-width:480px;background:var(--white);border-radius:22px 22px 0 0;z-index:65;padding:14px 0 calc(10px + env(safe-area-inset-bottom,0px));transition:transform .25s;}
+.sheet.show{transform:translate(-50%,0);}
+.sheet-item{padding:15px 22px;font-size:14.5px;}
+.sheet-item:active{background:#f3efe6;}
+.sheet-item.danger{color:#b3432f;}
+
+/* viewer */
+#viewer{position:fixed;inset:0;background:#000;z-index:80;display:none;flex-direction:column;}
+.v-top,.v-bottom{position:absolute;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;color:#fff;}
+.v-top{top:0;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 14px;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent);}
+.v-top .icon-btn{color:#fff;}
+.v-top div{text-align:center;font-size:13px;min-width:0;}
+.v-top small{display:block;font-size:11px;color:#c9cdd6;margin-top:2px;}
+.v-bottom{bottom:0;justify-content:center;gap:34px;padding:14px 20px calc(16px + env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,rgba(0,0,0,.6),transparent);}
+.v-act{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:#fff;padding:6px 14px;}
+.v-act svg{width:22px;height:22px;}
+#vStage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#vImg{max-width:100%;max-height:100%;object-fit:contain;transition:transform .15s;}
+.v-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:#fff;z-index:2;}
+
+#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#f5f1e8;padding:11px 20px;border-radius:24px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:100;max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(min-width:768px){.app-shell{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
+
+/* ==========================================================
+   DESKTOP (>=900px) — left sidebar nav + centered dialogs
+   ========================================================== */
+@media (min-width:900px){
+  :root{--sidebar-w:88px;}
+
+  .app-shell{max-width:none;margin:0 0 0 var(--sidebar-w);}
+
+  .header{left:var(--sidebar-w);right:0;top:0;transform:none;margin:0;width:auto;max-width:none;padding-left:32px;padding-right:32px;}
+
+  #page{padding-bottom:40px;}
+
+  .bottom-nav{
+    left:0;right:auto;top:0;bottom:0;transform:none;margin:0;
+    width:var(--sidebar-w);max-width:none;height:100vh;
+    flex-direction:column;justify-content:flex-start;align-items:center;
+    gap:8px;padding:28px 0 20px;
+    border-top:none;border-right:1px solid var(--border);
+  }
+  .nav-item{width:64px;padding:8px 4px;}
+  .nav-fab{margin-top:4px;order:-1;}
+  .fab{bottom:24px;}
+
+  .sheet{
+    left:50%;top:50%;bottom:auto;right:auto;
+    width:92%;max-width:440px;max-height:86vh;
+    border-radius:24px;
+    transform:translate(-50%,-50%) scale(.95);
+    opacity:0;pointer-events:none;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+  }
+  .sheet.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+
+.grid{grid-template-columns:repeat(4,1fr);padding:20px 32px 20px;}
+  .grid.photos{grid-template-columns:repeat(6,1fr);gap:10px;padding:16px 32px 24px;}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <section id="page">
+    <header class="header">
+      <div class="header-left">
+        <svg class="icon-btn" id="backBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
+        <div class="header-titles"><h1 id="title">Photos</h1><p id="sub">Your precious moments, always with you.</p></div>
+      </div>
+      <svg class="icon-btn" id="menuBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg>
+    </header>
+    <div class="header-spacer"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <div class="fab" id="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Home</a>
+    <a href="photos.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>Explore</a>
+    <div class="nav-fab" id="navFab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></div>
+    <a href="diary.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/></svg>Journal</a>
+    <div class="nav-item" onclick="toast('Settings coming soon')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Settings</div>
+  </nav>
+
+  <div id="viewer">
+    <div class="v-top">
+      <svg class="icon-btn" id="vClose" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      <div><span id="vName"></span><small id="vDate"></small></div>
+      <span style="width:34px"></span>
+    </div>
+    <div id="vStage"><img id="vImg" alt=""></div>
+    <div class="v-nav" id="vPrev" style="left:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></div>
+    <div class="v-nav" id="vNext" style="right:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></div>
+    <div class="v-bottom">
+      <div class="v-act" id="vSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>Save</div>
+      <div class="v-act" id="vDel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13"/></svg>Delete</div>
+    </div>
+  </div>
+
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet"></div>
+  <div id="toast"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, doc, addDoc, getDocs, updateDoc, deleteDoc, query, where, serverTimestamp, increment, writeBatch }
+  from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const IMGBB_API_KEY = "421680dbf325e616b275a9511c0defd5";
+const firebaseConfig = {
+  apiKey: "AIzaSyB-kQFQbW6IeoC9bIiE89VQqX8oueHjsZU",
+  authDomain: "echoes-of-time-4f601.firebaseapp.com",
+  databaseURL: "https://echoes-of-time-4f601-default-rtdb.firebaseio.com",
+  projectId: "echoes-of-time-4f601",
+  storageBucket: "echoes-of-time-4f601.firebasestorage.app",
+  messagingSenderId: "118735611820",
+  appId: "1:118735611820:web:ca7745d7c2d2f15a113c09"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+const FOLDERS = collection(db, 'photo_folders');
+const PHOTOS = collection(db, 'photo_items');
+const MAX_BYTES = 32 * 1024 * 1024;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const plural = n => (n || 0) + ' photo' + (n === 1 ? '' : 's');
+const ts = d => d.createdAt?.toMillis ? d.createdAt.toMillis() : 0;
+
+let view = 'folders', folders = [], cur = null, photos = [], vi = -1;
+
+window.toast = msg => {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._tt); window._tt = setTimeout(() => t.classList.remove('show'), 2200);
+};
+
+/* ---------- sheet ---------- */
+function sheet(items){
+  const s = $('sheet'); s.innerHTML = '';
+  items.forEach(([label, fn, danger]) => {
+    const r = document.createElement('div');
+    r.className = 'sheet-item' + (danger ? ' danger' : ''); r.textContent = label;
+    r.onclick = () => { closeSheet(); fn(); };
+    s.appendChild(r);
+  });
+  s.classList.add('show'); $('scrim').classList.add('show'); $('scrim').onclick = closeSheet;
+}
+function closeSheet(){ $('sheet').classList.remove('show'); $('scrim').classList.remove('show'); }
+
+/* ---------- views ---------- */
+function showFolders(){
+  view = 'folders'; cur = null;
+  $('title').textContent = 'Photos'; $('sub').textContent = 'Your precious moments, always with you.';
+  $('grid').className = 'grid'; loadFolders();
+}
+function showFolder(f){
+  view = 'folder'; cur = f;
+  $('title').textContent = f.name; $('sub').textContent = plural(f.photoCount);
+  $('grid').className = 'grid photos'; loadPhotos();
+}
+$('backBtn').onclick = () => view === 'folder' ? showFolders() : (location.href = 'index.html');
+$('fab').onclick = $('navFab').onclick = () => view === 'folders' ? newFolder() : pick();
+$('menuBtn').onclick = () => view === 'folders'
+  ? sheet([['New Folder', newFolder]])
+  : sheet([['Upload Photos', pick], ['Rename Folder', () => renameFolder(cur)], ['Delete Folder', () => delFolder(cur), true]]);
+
+/* ---------- folders ---------- */
+async function loadFolders(){
+  $('grid').innerHTML = '<div class="msg">Loading…</div>';
+  try{
+    const snap = await getDocs(FOLDERS);
+    folders = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => ts(b) - ts(a));
+    renderFolders();
+  }catch(e){ $('grid').innerHTML = '<div class="msg">Could not load folders.<br>' + esc(e.message) + '</div>'; }
+}
+function renderFolders(){
+  const g = $('grid');
+  if(!folders.length){ g.innerHTML = '<div class="msg">No folders yet.<br>Tap + to create one.</div>'; return; }
+  g.innerHTML = '';
+  folders.forEach((f, i) => {
+    const c = document.createElement('div');
+    c.className = 'album-card'; c.style.animationDelay = i * .05 + 's';
+    c.innerHTML = (f.coverUrl ? `<img src="${esc(f.coverUrl)}" alt="" loading="lazy">` : '') +
+      `<div class="album-overlay"><h3>${esc(f.name)}</h3><span>${plural(f.photoCount)}</span></div>`;
+    c.onclick = () => showFolder(f);
+    g.appendChild(c);
+  });
+}
+async function newFolder(){
+  const name = (prompt('Folder name (e.g. Family, Travel)') || '').trim();
+  if(!name) return;
+  try{ await addDoc(FOLDERS, {name, coverUrl: null, photoCount: 0, createdAt: serverTimestamp()}); toast('Folder created'); showFolders(); }
+  catch(e){ toast('Could not create folder'); }
+}
+async function renameFolder(f){
+  const name = (prompt('Rename folder', f.name) || '').trim();
+  if(!name || name === f.name) return;
+  try{ await updateDoc(doc(FOLDERS, f.id), {name}); f.name = name; $('title').textContent = name; toast('Renamed'); }
+  catch(e){ toast('Could not rename'); }
+}
+async function delFolder(f){
+  if(!confirm(`Delete "${f.name}" and its ${f.photoCount || 0} photo record(s)? This cannot be undone.`)) return;
+  toast('Deleting…');
+  try{
+    const snap = await getDocs(query(PHOTOS, where('folderId', '==', f.id)));
+    for(let i = 0; i < snap.docs.length; i += 400){
+      const b = writeBatch(db); snap.docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit();
+    }
+    await deleteDoc(doc(FOLDERS, f.id));
+    toast('Folder deleted'); showFolders();
+  }catch(e){ toast('Could not delete folder'); }
+}
+
+/* ---------- photos ---------- */
+async function loadPhotos(){
+  $('grid').innerHTML = '<div class="msg">Loading…</div>';
+  try{
+    const snap = await getDocs(query(PHOTOS, where('folderId', '==', cur.id)));
+    photos = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => ts(b) - ts(a));
+    renderPhotos();
+  }catch(e){ $('grid').innerHTML = '<div class="msg">Could not load photos.<br>' + esc(e.message) + '</div>'; }
+}
+function renderPhotos(){
+  const g = $('grid');
+  if(!photos.length){ g.innerHTML = '<div class="msg">No photos yet.<br>Tap + to upload.</div>'; return; }
+  g.innerHTML = '';
+  photos.forEach((p, i) => {
+    const t = document.createElement('div');
+    t.className = 'tile'; t.style.animationDelay = Math.min(i * .03, .4) + 's';
+    t.innerHTML = `<img src="${esc(p.thumbUrl || p.url)}" alt="" loading="lazy">`;
+    t.onclick = () => openViewer(i);
+    g.appendChild(t);
+  });
+}
+
+/* ---------- upload: compress -> ImgBB -> Firestore ---------- */
+function pick(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+  inp.onchange = () => upload(Array.from(inp.files || []));
+  inp.click();
+}
+function compress(file, max = 2048, q = .85){
+  return new Promise(res => {
+    if(!/^image\/(jpeg|png|webp)$/.test(file.type)) return res(file);
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(u);
+      const {width: w, height: h} = img;
+      if(w <= max && h <= max) return res(file);
+      const s = Math.min(max / w, max / h), c = document.createElement('canvas');
+      c.width = Math.round(w * s); c.height = Math.round(h * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => res(b ? new File([b], file.name, {type: 'image/jpeg'}) : file), 'image/jpeg', q);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); res(file); };
+    img.src = u;
+  });
+}
+function toImgBB(file){
+  return new Promise((resolve, reject) => {
+    const fd = new FormData(); fd.append('image', file);
+    const x = new XMLHttpRequest();
+    x.open('POST', 'https://api.imgbb.com/1/upload?key=' + encodeURIComponent(IMGBB_API_KEY));
+    x.onload = () => {
+      try{ const j = JSON.parse(x.responseText); j.success ? resolve(j.data) : reject(new Error(j.error?.message || 'Upload failed')); }
+      catch(e){ reject(e); }
+    };
+    x.onerror = () => reject(new Error('Network error'));
+    x.send(fd);
+  });
+}
+async function upload(files){
+  if(!files.length || !cur) return;
+  let ok = 0;
+  for(let i = 0; i < files.length; i++){
+    const f = files[i];
+    if(f.size > MAX_BYTES){ toast('Skipped (over 32MB): ' + f.name); continue; }
+    toast(`Uploading ${i + 1} of ${files.length}…`);
+    try{
+      const r = await toImgBB(await compress(f));
+      await addDoc(PHOTOS, {
+        folderId: cur.id, name: f.name, url: r.url,
+        thumbUrl: r.thumb?.url || r.url, mediumUrl: r.medium?.url || r.url,
+        deleteUrl: r.delete_url || null, createdAt: serverTimestamp()
+      });
+      const upd = {photoCount: increment(1)};
+      if(!cur.coverUrl){ cur.coverUrl = r.thumb?.url || r.url; upd.coverUrl = cur.coverUrl; }
+      await updateDoc(doc(FOLDERS, cur.id), upd);
+      cur.photoCount = (cur.photoCount || 0) + 1; ok++;
+    }catch(e){ toast('Failed: ' + f.name); await new Promise(r => setTimeout(r, 1200)); }
+  }
+  toast(plural(ok).replace('photo', 'photo') + ' uploaded');
+  $('sub').textContent = plural(cur.photoCount);
+  loadPhotos();
+}
+
+/* ---------- viewer ---------- */
+function openViewer(i){ vi = i; renderViewer(); $('viewer').style.display = 'flex'; }
+function closeViewer(){ $('viewer').style.display = 'none'; $('vImg').style.transform = ''; }
+function renderViewer(){
+  const p = photos[vi]; if(!p) return;
+  $('vImg').src = p.mediumUrl || p.url;
+  $('vName').textContent = p.name || '';
+  $('vDate').textContent = p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'}) : '';
+  $('vPrev').style.visibility = vi > 0 ? 'visible' : 'hidden';
+  $('vNext').style.visibility = vi < photos.length - 1 ? 'visible' : 'hidden';
+}
+const step = d => { const n = vi + d; if(n >= 0 && n < photos.length){ vi = n; $('vImg').style.transform = ''; renderViewer(); } };
+$('vClose').onclick = closeViewer; $('vPrev').onclick = () => step(-1); $('vNext').onclick = () => step(1);
+(() => {
+  let sx = 0, sy = 0, zoom = false, last = 0;
+  const st = $('vStage');
+  st.addEventListener('touchstart', e => { if(e.touches.length === 1){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, {passive: true});
+  st.addEventListener('touchend', e => {
+    const now = Date.now();
+    if(now - last < 300){ zoom = !zoom; $('vImg').style.transform = zoom ? 'scale(2.2)' : ''; last = 0; return; }
+    last = now; if(zoom) return;
+    const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+  }, {passive: true});
+})();
+
+$('vSave').onclick = async () => {
+  const p = photos[vi]; if(!p) return;
+  toast('Preparing download…');
+  try{
+    const res = await fetch(p.url, {mode: 'cors'});
+    if(!res.ok) throw 0;
+    const b = await res.blob(), u = URL.createObjectURL(b), a = document.createElement('a');
+    const ext = b.type === 'image/png' ? '.png' : b.type === 'image/webp' ? '.webp' : '.jpg';
+    a.href = u; a.download = (p.name || 'photo').replace(/\.[^.]+$/, '') + ext;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 4000); toast('Photo saved');
+  }catch(e){ window.open(p.url, '_blank'); toast('Opened image — long-press to save'); }
+};
+$('vDel').onclick = async () => {
+  const p = photos[vi]; if(!p || !confirm('Delete this photo? This cannot be undone.')) return;
+  try{
+    await deleteDoc(doc(PHOTOS, p.id));
+    await updateDoc(doc(FOLDERS, cur.id), {photoCount: increment(-1)});
+    cur.photoCount = Math.max(0, (cur.photoCount || 1) - 1);
+    photos.splice(vi, 1); $('sub').textContent = plural(cur.photoCount);
+    toast('Photo deleted');
+    if(!photos.length) closeViewer(); else { vi = Math.min(vi, photos.length - 1); renderViewer(); }
+    renderPhotos();
+  }catch(e){ toast('Could not delete photo'); }
+};
+
+showFolders();
+</script>
+</body>
+</html>

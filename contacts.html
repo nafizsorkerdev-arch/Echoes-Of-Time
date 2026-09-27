@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contacts · Ehoes Of Time</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  --bg:#0b1220; --bg2:#141c2e;
+  --cream:#faf7f0; --cream-surface:#ffffff;
+  --gold:#d9a35c; --gold-soft:#e8c491;
+  --navy:#0f1626; --navy-soft:#1b2436;
+  --text:#1b1f27; --text-inv:#f5f1e8;
+  --muted:#8a8f9a; --muted-dark:#a9afc2;
+  --border:#eae6db; --border-dark:#2a3348;
+  --green:#3f8f52;
+  --radius:20px; --radius-sm:12px; --radius-lg:28px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{font-family:'Georgia','Times New Roman',serif;background:var(--navy);color:var(--text);overflow-x:hidden;}
+.app-shell{max-width:480px;margin:0 auto;position:relative;min-height:100vh;background:var(--cream);}
+button{font-family:inherit;border:none;cursor:pointer;background:none;}
+svg{display:block;}
+a{text-decoration:none;color:inherit;}
+
+/* ---------- HEADER ---------- */
+#page{padding-bottom:96px;}
+.header{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 14px;
+  background:var(--cream);z-index:15;
+  border-bottom:1px solid rgba(0,0,0,0.05);
+}
+.header-spacer{height:calc(env(safe-area-inset-top,0px) + 62px);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.back-btn{width:22px;height:22px;color:var(--navy);padding:6px;border-radius:50%;margin-left:-6px;transition:background .2s,transform .15s;}
+.back-btn:active{background:rgba(217,163,92,0.18);transform:scale(0.9);}
+.header-titles h1{font-size:19px;color:var(--navy);}
+.header-titles p{font-family:Georgia,serif;font-size:11.5px;color:var(--muted);margin-top:2px;}
+.icon-btn{width:22px;height:22px;color:var(--navy);padding:6px;border-radius:50%;transition:background .2s,transform .15s;}
+.icon-btn:active{background:rgba(217,163,92,0.18);transform:scale(0.9);}
+
+/* ---------- SUMMARY ---------- */
+.summary{padding:16px 20px 6px;
+  opacity:0;transform:translateY(6px);animation:gFade .6s ease forwards;}
+.summary-top{display:flex;align-items:baseline;justify-content:space-between;}
+.summary-top h2{font-size:19px;color:var(--navy);}
+.summary-top span{font-family:Georgia,serif;font-size:12.5px;color:var(--gold);font-weight:bold;}
+.summary p{font-family:Georgia,serif;font-size:12.5px;color:var(--muted);margin-top:3px;}
+@keyframes gFade{to{opacity:1;transform:translateY(0);}}
+
+/* ---------- FILTER PILLS ---------- */
+.filters{display:flex;gap:9px;padding:14px 20px 16px;overflow-x:auto;}
+.filters::-webkit-scrollbar{display:none;}
+.pill{
+  flex:0 0 auto;padding:8px 16px;border-radius:20px;font-size:12.5px;
+  border:1px solid var(--border);color:var(--muted);background:#fff;
+  transition:transform .15s ease,background .2s ease,color .2s ease;
+}
+.pill.active{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:#241705;border-color:transparent;font-weight:bold;}
+.pill:active{transform:scale(0.94);}
+
+/* ---------- CONTACT LIST ---------- */
+.contact-list{display:flex;flex-direction:column;gap:12px;padding:0 20px 20px;}
+.contact-card{
+  display:flex;align-items:center;gap:13px;background:#fff;
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:13px 14px;box-shadow:0 8px 18px rgba(15,22,38,0.06);
+  transition:transform .15s ease;
+  opacity:0;transform:translateY(8px);animation:rowIn .5s ease forwards;
+}
+.contact-card:active{transform:scale(0.98);}
+@keyframes rowIn{to{opacity:1;transform:translateY(0);}}
+.c-avatar{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:bold;font-size:15px;color:#fff;
+}
+.c-info{flex:1;min-width:0;}
+.c-info h3{font-size:14.5px;color:var(--navy);}
+.c-info p{font-family:Georgia,serif;font-size:12px;color:var(--muted);margin-top:1px;}
+.c-info .phone{color:#5b6270;}
+.c-right{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.call-icon{width:19px;height:19px;color:var(--gold);padding:7px;border-radius:50%;background:rgba(217,163,92,0.12);
+  transition:transform .15s;}
+.call-icon:active{transform:scale(0.88);}
+.chevron{width:16px;height:16px;color:var(--muted);}
+
+/* ---------- EMPTY STATE ---------- */
+.empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;padding:50px 30px;}
+.empty-state svg{width:44px;height:44px;color:var(--border);margin-bottom:14px;}
+.empty-state h3{font-size:15px;color:var(--navy);margin-bottom:6px;}
+.empty-state p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+/* ---------- FAB ---------- */
+.fab{
+  position:fixed;right:20px;bottom:96px;z-index:25;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 24px rgba(217,163,92,0.35);
+  transition:transform .18s ease;
+  animation:fabPulse 2.6s ease-in-out infinite;
+}
+.fab:active{transform:scale(0.9);}
+.fab svg{width:22px;height:22px;color:#241705;}
+@keyframes fabPulse{
+  0%,100%{box-shadow:0 10px 24px rgba(217,163,92,0.35),0 0 0 0 rgba(217,163,92,0.25);}
+  50%{box-shadow:0 10px 24px rgba(217,163,92,0.35),0 0 0 8px rgba(217,163,92,0);}
+}
+
+/* ---------- BOTTOM NAV ---------- */
+.bottom-nav{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:0;width:100%;max-width:480px;
+  background:var(--cream-surface);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px));
+  z-index:20;
+}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;
+  padding:4px 10px;border-radius:14px;transition:transform .15s ease,background .2s ease,color .2s ease;}
+.nav-item svg{width:21px;height:21px;}
+.nav-item.active{color:var(--gold);background:rgba(217,163,92,0.12);}
+.nav-item:active{transform:scale(0.88);background:rgba(217,163,92,0.16);}
+.nav-fab{
+  width:50px;height:50px;border-radius:50%;background:var(--navy);
+  display:flex;align-items:center;justify-content:center;margin-top:-26px;
+  box-shadow:0 8px 18px rgba(15,22,38,0.35);border:4px solid var(--cream-surface);
+  transition:transform .18s ease,box-shadow .25s ease;
+  animation:fabPulse2 2.6s ease-in-out infinite;
+}
+.nav-fab:active{transform:scale(0.9);}
+.nav-fab svg{width:20px;height:20px;color:var(--gold-soft);}
+@keyframes fabPulse2{
+  0%,100%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 0 rgba(217,163,92,0.25);}
+  50%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 7px rgba(217,163,92,0);}
+}
+
+/* ---------- MODAL / BOTTOM SHEET ---------- */
+.sheet-backdrop{
+  position:fixed;inset:0;background:rgba(15,22,38,0.5);z-index:60;
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.sheet-backdrop.show{opacity:1;pointer-events:auto;}
+.sheet{
+  position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);
+  width:100%;max-width:480px;background:var(--cream);
+  border-radius:24px 24px 0 0;z-index:61;padding:22px 22px calc(24px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -14px 40px rgba(15,22,38,0.3);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+  max-height:82vh;overflow-y:auto;
+}
+.sheet.show{transform:translate(-50%,0);}
+.sheet-handle{width:40px;height:4px;border-radius:3px;background:var(--border);margin:0 auto 16px;}
+.sheet h2{font-size:19px;color:var(--navy);margin-bottom:2px;}
+.sheet-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+.detail-row{display:flex;flex-direction:column;gap:4px;padding:11px 0;border-bottom:1px solid var(--border);}
+.detail-row label{font-size:11px;color:var(--muted);letter-spacing:.3px;}
+.detail-row .val{font-size:14.5px;color:var(--navy);}
+.sheet-actions{display:flex;gap:10px;margin-top:18px;}
+.sheet-actions button, .sheet-actions a{flex:1;padding:13px;border-radius:16px;font-size:13.5px;font-weight:bold;text-align:center;display:block;}
+.btn-secondary{background:#fff;border:1px solid var(--border);color:var(--navy);}
+.btn-primary{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:#241705;}
+
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:5px;}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--border);
+  background:#fff;font-family:inherit;font-size:13.5px;color:var(--navy);
+}
+.field textarea{resize:vertical;min-height:56px;}
+
+/* ---------- TOAST ---------- */
+#toast{
+  position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:var(--text-inv);padding:11px 20px;border-radius:24px;
+  font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+  z-index:100;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.3);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(min-width:768px){.app-shell{border-left:1px solid var(--border);border-right:1px solid var(--border);}}
+
+/* ==========================================================
+   DESKTOP (>=900px) — left sidebar nav + centered dialogs
+   ========================================================== */
+@media (min-width:900px){
+  :root{--sidebar-w:88px;}
+
+  .app-shell{max-width:none;margin:0 0 0 var(--sidebar-w);}
+
+  .header{left:var(--sidebar-w);right:0;top:0;transform:none;margin:0;width:auto;max-width:none;padding-left:32px;padding-right:32px;}
+
+  #page{padding-bottom:40px;}
+
+  .bottom-nav{
+    left:0;right:auto;top:0;bottom:0;transform:none;margin:0;
+    width:var(--sidebar-w);max-width:none;height:100vh;
+    flex-direction:column;justify-content:flex-start;align-items:center;
+    gap:8px;padding:28px 0 20px;
+    border-top:none;border-right:1px solid var(--border);
+  }
+  .nav-item{width:64px;padding:8px 4px;}
+  .nav-fab{margin-top:4px;order:-1;}
+  .fab{bottom:24px;}
+
+  .sheet{
+    left:50%;top:50%;bottom:auto;right:auto;
+    width:92%;max-width:440px;max-height:86vh;
+    border-radius:24px;
+    transform:translate(-50%,-50%) scale(.95);
+    opacity:0;pointer-events:none;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+  }
+  .sheet.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+
+.contact-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;padding:0 32px 32px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <section id="page">
+    <header class="header">
+      <div class="header-left">
+        <a href="index.html"><svg class="back-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></a>
+        <div class="header-titles">
+          <h1>Contacts</h1>
+          <p>People who matter, always close.</p>
+        </div>
+      </div>
+      <svg class="icon-btn" onclick="toast('Contact options coming soon')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/></svg>
+    </header>
+    <div class="header-spacer"></div>
+
+    <div class="summary">
+      <div class="summary-top">
+        <h2>Your Circle</h2>
+        <span id="contactCount">0 contacts</span>
+      </div>
+      <p>Keep the people who matter, close at hand.</p>
+    </div>
+
+    <div class="filters" id="filters">
+      <div class="pill active" data-f="all">All</div>
+      <div class="pill" data-f="family">Family</div>
+      <div class="pill" data-f="friends">Friends</div>
+      <div class="pill" data-f="work">Work</div>
+      <div class="pill" data-f="emergency">Emergency</div>
+      <div class="pill" data-f="other">Other</div>
+    </div>
+
+    <div class="contact-list" id="contactList"></div>
+
+    <div class="empty-state" id="emptyState" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <h3 id="emptyTitle">No contacts yet</h3>
+      <p id="emptyText">Tap + to add your first contact.</p>
+    </div>
+  </section>
+
+  <div class="fab" onclick="openAdd()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+      Home
+    </a>
+    <a href="photos.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+      Explore
+    </a>
+    <div class="nav-fab" onclick="toast('Quick add coming soon')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    </div>
+    <a href="diary.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/></svg>
+      Journal
+    </a>
+    <div class="nav-item" onclick="toast('Settings coming soon')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.9 2.9l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.9-2.9l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.9-2.9l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.6V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.9 2.9l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.6 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.6 1Z"/></svg>
+      Settings
+    </div>
+  </nav>
+
+  <!-- CONTACT DETAIL SHEET -->
+  <div class="sheet-backdrop" id="detailBackdrop" onclick="closeSheet('detail')"></div>
+  <div class="sheet" id="detailSheet">
+    <div class="sheet-handle"></div>
+    <h2 id="dName">Name</h2>
+    <p class="sheet-sub" id="dCategory">Category</p>
+    <div class="detail-row">
+      <label>Relationship</label>
+      <div class="val" id="dRel">—</div>
+    </div>
+    <div class="detail-row" style="border-bottom:none;">
+      <label>Phone</label>
+      <div class="val" id="dPhone">—</div>
+    </div>
+    <div class="sheet-actions">
+      <a class="btn-secondary" id="dCall" href="#">Call</a>
+      <a class="btn-secondary" id="dSms" href="#">Message</a>
+      <button class="btn-primary" onclick="toast('Contact editing coming soon')">Edit</button>
+    </div>
+  </div>
+
+  <!-- ADD CONTACT SHEET -->
+  <div class="sheet-backdrop" id="addBackdrop" onclick="closeSheet('add')"></div>
+  <div class="sheet" id="addSheet">
+    <div class="sheet-handle"></div>
+    <h2>Add Contact</h2>
+    <p class="sheet-sub">Saved safely in your vault.</p>
+    <div class="field"><label>Full Name</label><input id="fName" placeholder="e.g. Rahim Uddin"></div>
+    <div class="field"><label>Phone Number</label><input id="fPhone" placeholder="e.g. +880 1XXX XXXXXX"></div>
+    <div class="field"><label>Relationship</label><input id="fRel" placeholder="e.g. Friend, Father, Doctor"></div>
+    <div class="field"><label>Category</label>
+      <select id="fCat">
+        <option>Family</option><option>Friends</option><option>Work</option><option>Emergency</option><option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label>Email</label><input id="fEmail" placeholder="Optional"></div>
+    <div class="field"><label>Notes</label><textarea id="fNotes" placeholder="Optional notes"></textarea></div>
+    <div class="sheet-actions">
+      <button class="btn-secondary" onclick="closeSheet('add')">Cancel</button>
+      <button class="btn-primary" id="saveBtn" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+const catColors = {
+  Family:'#c19133', Friends:'#3f8f52', Work:'#3f6fb0', Emergency:'#c0475e', Other:'#5c6472'
+};
+const esc = t => String(t==null?'':t).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let contacts = [];
+let loaded = false;
+let currentFilter='all';
+let currentContact=null;
+
+function setData(list){ contacts = list; loaded = true; render(); }
+
+function initials(name){
+  return name.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function render(){
+  const list = document.getElementById('contactList');
+  list.innerHTML='';
+  const filtered = contacts
+    .filter(c=> currentFilter==='all' || (c.cat||'').toLowerCase()===currentFilter)
+    .sort((a,b)=>(b.created||0)-(a.created||0));
+  filtered.forEach((c,i)=>{
+    const row = document.createElement('div');
+    row.className='contact-card';
+    row.style.animationDelay=(i*0.05)+'s';
+    row.innerHTML = `
+      <div class="c-avatar" style="background:${catColors[c.cat]||'#5c6472'}">${esc(initials(c.name))}</div>
+      <div class="c-info">
+        <h3>${esc(c.name)}</h3>
+        <p>${esc(c.rel)}</p>
+        <p class="phone">${esc(c.phone)}</p>
+      </div>
+      <div class="c-right">
+        <a href="tel:${esc(c.phone.replace(/\s+/g,''))}" onclick="event.stopPropagation()">
+          <svg class="call-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1L6.6 10.8Z"/></svg>
+        </a>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>`;
+    row.onclick = ()=>openDetail(c);
+    list.appendChild(row);
+  });
+  document.getElementById('contactCount').textContent = contacts.length + ' contact' + (contacts.length===1?'':'s');
+  document.getElementById('emptyTitle').textContent = contacts.length ? 'No contacts found' : 'No contacts yet';
+  document.getElementById('emptyText').textContent = contacts.length ? 'Nothing in this category yet.' : 'Tap + to add your first contact.';
+  document.getElementById('emptyState').style.display = (loaded && filtered.length===0) ? 'flex' : 'none';
+}
+
+document.querySelectorAll('.pill').forEach(p=>{
+  p.onclick = ()=>{
+    document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+    currentFilter = p.dataset.f;
+    render();
+  };
+});
+
+function openDetail(c){
+  currentContact = c;
+  document.getElementById('dName').textContent = c.name;
+  document.getElementById('dCategory').textContent = c.cat + ' contact';
+  document.getElementById('dRel').textContent = c.rel;
+  document.getElementById('dPhone').textContent = c.phone;
+  const tel = c.phone.replace(/\s+/g,'');
+  document.getElementById('dCall').href = 'tel:'+tel;
+  document.getElementById('dSms').href = 'sms:'+tel;
+  openSheet('detail');
+}
+
+function openAdd(){ openSheet('add'); }
+
+async function saveContact(){
+  const name = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const rel = document.getElementById('fRel').value.trim();
+  const cat = document.getElementById('fCat').value;
+  const email = document.getElementById('fEmail').value.trim();
+  const notes = document.getElementById('fNotes').value.trim();
+  if(!name || !phone){ toast('Please fill in name and phone'); return; }
+  const btn = document.getElementById('saveBtn'); btn.disabled = true;
+  try{
+    const rec = {name, phone, rel:rel||cat, cat, email, notes, created:Date.now()};
+    rec.id = await window.dbAdd(rec);
+    contacts.unshift(rec);
+    ['fName','fPhone','fRel','fEmail','fNotes'].forEach(id=>document.getElementById(id).value='');
+    closeSheet('add');
+    toast('Contact saved');
+    render();
+  }catch(e){ toast('Could not save contact'); }
+  btn.disabled = false;
+}
+
+function openSheet(which){
+  document.getElementById(which+'Backdrop').classList.add('show');
+  document.getElementById(which+'Sheet').classList.add('show');
+}
+function closeSheet(which){
+  document.getElementById(which+'Backdrop').classList.remove('show');
+  document.getElementById(which+'Sheet').classList.remove('show');
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+render();
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyB-kQFQbW6IeoC9bIiE89VQqX8oueHjsZU",
+  authDomain: "echoes-of-time-4f601.firebaseapp.com",
+  databaseURL: "https://echoes-of-time-4f601-default-rtdb.firebaseio.com",
+  projectId: "echoes-of-time-4f601",
+  storageBucket: "echoes-of-time-4f601.firebasestorage.app",
+  messagingSenderId: "118735611820",
+  appId: "1:118735611820:web:ca7745d7c2d2f15a113c09"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+window.dbAdd = async rec => { const {id, ...data} = rec; return (await addDoc(collection(db, 'contacts'), data)).id; };
+try{
+  const snap = await getDocs(collection(db, 'contacts'));
+  setData(snap.docs.map(d=>({id:d.id, ...d.data()})));
+}catch(e){ toast('Could not load contacts'); }
+</script>
+</body>
+</html>

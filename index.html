@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Echoes Of Time</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#faf7f0" id="metaThemeColor">
+<script>
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem('eot-theme'); }catch(e){}
+  if(saved === 'dark'){ document.documentElement.setAttribute('data-theme','dark'); }
+})();
+</script>
+<style>
+/* ==========================================================
+   DESIGN TOKENS
+   ========================================================== */
+:root{
+  --cream:#faf7f0;
+  --cream-surface:#ffffff;
+  --gold:#d9a35c;
+  --gold-soft:#e8c491;
+  --navy:#0f1626;
+  --text:#1b1f27;
+  --text-inv:#f5f1e8;
+  --muted:#8a8f9a;
+  --border:#eae6db;
+
+  --radius:20px;
+  --radius-sm:12px;
+
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+
+  /* Greeting layout: text column + art column must stay below 100% together */
+  --text-w:52%;
+  --art-w:62%;
+
+  /* Switchable theme surfaces */
+  --bg:var(--cream);
+  --surface:var(--cream-surface);
+  --header-bg:rgba(250,247,240,0.96);
+  --text-primary:var(--navy);
+  --text-body:var(--text);
+}
+
+html[data-theme="dark"]{
+  --cream:#12151c;
+  --cream-surface:#1b202a;
+  --bg:#12151c;
+  --surface:#1b202a;
+  --header-bg:rgba(18,21,28,0.92);
+  --text-primary:#f5f1e8;
+  --text-body:#c9cdd6;
+  --muted:#7c8291;
+  --border:#262b36;
+}
+
+/* ==========================================================
+   BASE
+   ========================================================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{
+  width:100%;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  scroll-padding-top:calc(var(--safe-top) + 60px);
+}
+body{
+  width:100%;
+  min-height:100vh;
+  font-family:Georgia,'Times New Roman',serif;
+  background:var(--navy);
+  color:var(--text);
+  overflow-x:hidden;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.app-shell{
+  position:relative;
+  width:100%;
+  max-width:480px;
+  margin:0 auto;
+  min-height:100vh;
+  background:var(--bg);
+  overflow-x:hidden;
+  transition:background .25s ease;
+}
+button{font-family:inherit;font-size:inherit;color:inherit;border:none;background:none;cursor:pointer;}
+svg{display:block;}
+img{display:block;}
+a{text-decoration:none;color:inherit;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px;}
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+#home{padding-bottom:calc(112px + var(--safe-bottom));}
+
+.header{
+  position:fixed;
+  top:0;left:0;right:0;
+  width:100%;max-width:480px;
+  height:calc(var(--safe-top) + 60px);
+  margin:0 auto;
+  display:flex;align-items:center;justify-content:flex-start;gap:12px;
+  padding:var(--safe-top) 20px 0;
+  background:var(--header-bg);
+  -webkit-backdrop-filter:saturate(1.4) blur(10px);
+          backdrop-filter:saturate(1.4) blur(10px);
+  box-shadow:0 1px 0 rgba(15,22,38,0.06),0 6px 18px rgba(15,22,38,0.04);
+  z-index:15;
+  transition:background .25s ease;
+}
+.theme-toggle{
+  flex-shrink:0;
+  margin-left:auto;
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+  color:var(--text-primary);
+  background:rgba(15,22,38,0.06);
+}
+html[data-theme="dark"] .theme-toggle{background:rgba(245,241,232,0.08);}
+.theme-toggle:active{transform:scale(0.9);}
+.theme-toggle svg{width:19px;height:19px;}
+.theme-toggle .icon-moon{display:none;}
+html[data-theme="dark"] .theme-toggle .icon-sun{display:none;}
+html[data-theme="dark"] .theme-toggle .icon-moon{display:block;}
+/* fine gold accent line along the bottom edge */
+.header::after{
+  content:"";
+  position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold-soft) 25%,var(--gold) 50%,var(--gold-soft) 75%,transparent);
+  opacity:.65;
+  pointer-events:none;
+}
+.header-spacer{height:calc(var(--safe-top) + 60px);}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand-logo{
+  width:36px;height:36px;
+  flex-shrink:0;
+  object-fit:contain;
+  object-position:center;
+}
+.brand h1{
+  font-size:19px;font-weight:700;
+  line-height:1.2;letter-spacing:.4px;
+  color:var(--text-primary);
+  white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+
+@media (max-width:360px){
+  .header{padding-left:16px;padding-right:16px;}
+  .brand{gap:10px;}
+  .brand-logo{width:32px;height:32px;}
+  .brand h1{font-size:18px;letter-spacing:.3px;}
+}
+
+/* ==========================================================
+   GREETING
+   The text and the illustration share ONE grid cell:
+   - the text sits top-left (with its own padding)
+   - the PNG sits bottom-right, in normal flow, width % + height:auto
+   So the section height always follows the image ratio and text height:
+   nothing is cropped, stretched, or floated to a corner by guesswork.
+   ========================================================== */
+.greeting{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto;
+  width:100%;
+  overflow:hidden;
+}
+.greeting-text{
+  grid-area:1/1;
+  align-self:start;
+  position:relative;
+  z-index:2;
+  width:var(--text-w);
+  padding:22px 0 18px 20px;
+}
+.greeting-hello{
+  font-size:clamp(12.5px,3.6vw,14px);
+  color:var(--text-primary);
+  letter-spacing:.2px;
+  margin-bottom:2px;
+  opacity:0;transform:translateY(6px);
+  animation:gFade .7s ease forwards;
+}
+.greeting-name{
+  display:flex;align-items:center;gap:8px;flex-wrap:nowrap;
+  font-size:clamp(26px,7.6vw,32px);
+  line-height:1.15;
+  color:var(--text-primary);
+  opacity:0;transform:translateY(8px);
+  animation:gFade .8s .12s ease forwards;
+}
+.greeting-name .name{color:var(--gold);}
+.leaf{width:17px;height:17px;flex-shrink:0;position:relative;top:1px;}
+.quote-wrap{
+  margin-top:12px;
+  padding-left:12px;
+  border-left:2px solid var(--gold);
+  opacity:0;transform:translateY(8px);
+  animation:gFade .8s .28s ease forwards;
+}
+.quote{
+  font-style:italic;
+  color:var(--text-body);
+  font-size:clamp(11px,3.3vw,13px);
+  line-height:1.5;
+  white-space:nowrap;
+}
+
+/* mountain.png = 1124 x 767. Its own sun + mist are already in the file,
+   so no extra CSS glow is added (that caused a second, misplaced glow).
+   The PNG's bottom edge is cut while still ~55% opaque, so the bottom
+   is softened with a mask to let it dissolve into the page. */
+.greeting-mountain{
+  grid-area:1/1;
+  justify-self:end;
+  align-self:end;
+  position:relative;
+  z-index:1;
+  width:var(--art-w);
+  height:auto;
+  pointer-events:none;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 82%,transparent 100%);
+          mask-image:linear-gradient(to bottom,#000 0,#000 82%,transparent 100%);
+  transform-origin:right bottom;
+  opacity:0;
+  animation:mtFade 1.2s .35s ease forwards, mtFloat 8s 1.6s ease-in-out infinite;
+}
+
+@keyframes gFade{to{opacity:1;transform:translateY(0);}}
+@keyframes mtFade{to{opacity:1;}}
+@keyframes mtFloat{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.018);}
+}
+
+@media (max-width:360px){
+  :root{--text-w:55%;--art-w:60%;}
+  .greeting-text{padding:20px 0 16px 16px;}
+  .quote-wrap{padding-left:10px;}
+}
+
+/* ==========================================================
+   TODAY SUMMARY CARD
+   ========================================================== */
+.summary-card{
+  margin:14px 20px 24px;
+  padding:20px;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  background:var(--navy);
+  color:var(--text-inv);
+  border-radius:var(--radius);
+  box-shadow:0 14px 30px rgba(15,22,38,0.28);
+}
+.summary-main{flex-shrink:0;}
+.summary-date{font-size:11px;letter-spacing:.3px;color:#a9afc2;margin-bottom:6px;white-space:nowrap;}
+.summary-today{display:flex;align-items:center;gap:6px;font-size:20px;font-weight:bold;}
+.summary-stats{display:flex;flex-direction:column;gap:10px;min-width:0;}
+.stat{display:flex;align-items:center;gap:9px;font-size:13px;color:#e7e5db;white-space:nowrap;}
+.stat svg{width:16px;height:16px;flex-shrink:0;color:var(--gold-soft);}
+.stat b{color:#fff;}
+
+@media (max-width:360px){
+  .summary-card{margin-left:16px;margin-right:16px;padding:16px;}
+  .stat{font-size:12px;gap:7px;}
+}
+
+/* ==========================================================
+   MODULE GRID
+   ========================================================== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px 10px;
+  padding:0 20px;
+}
+.module{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  min-width:0;
+}
+.module-icon{
+  width:52px;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-sm);
+  background:var(--m-bg,#eef1f5);
+  transition:transform .18s ease,box-shadow .25s ease;
+}
+.module-icon svg{width:22px;height:22px;color:var(--m-fg,#4a5568);}
+.module:active .module-icon{
+  transform:scale(0.88);
+  box-shadow:0 0 0 6px rgba(217,163,92,0.16);
+}
+.module span{
+  font-size:11.5px;line-height:1.25;
+  color:var(--text-primary);text-align:center;
+}
+
+@media (max-width:360px){
+  .grid{padding:0 16px;gap:16px 8px;}
+  .module span{font-size:11px;}
+}
+
+/* ==========================================================
+   BOTTOM NAVIGATION
+   ========================================================== */
+.bottom-nav{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  width:100%;max-width:480px;
+  margin:0 auto;
+  display:flex;align-items:center;justify-content:space-around;
+  padding:10px 8px calc(10px + var(--safe-bottom));
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  z-index:20;
+  transition:background .25s ease;
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:4px 10px;
+  font-size:10.5px;line-height:1.2;
+  color:var(--muted);
+  border-radius:14px;
+  transition:transform .15s ease,background .2s ease,color .2s ease;
+}
+.nav-item svg{width:21px;height:21px;}
+.nav-item.active{color:var(--gold);background:rgba(217,163,92,0.12);}
+.nav-item:active{transform:scale(0.88);background:rgba(217,163,92,0.16);}
+.nav-fab{
+  width:50px;height:50px;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:-26px;
+  border-radius:50%;
+  background:var(--navy);
+  border:4px solid var(--cream-surface);
+  box-shadow:0 8px 18px rgba(15,22,38,0.35);
+  transition:transform .18s ease;
+  animation:fabPulse 2.6s ease-in-out infinite;
+}
+.nav-fab:active{transform:scale(0.9);}
+.nav-fab svg{width:20px;height:20px;color:var(--gold-soft);}
+@keyframes fabPulse{
+  0%,100%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 0 rgba(217,163,92,0.25);}
+  50%{box-shadow:0 8px 18px rgba(15,22,38,0.35),0 0 0 7px rgba(217,163,92,0);}
+}
+
+@media (max-width:360px){
+  .bottom-nav{padding-left:4px;padding-right:4px;}
+  .nav-item{padding:4px 8px;}
+}
+
+/* ==========================================================
+   TOAST
+   ========================================================== */
+#toast{
+  position:fixed;
+  left:50%;bottom:calc(100px + var(--safe-bottom));
+  transform:translateX(-50%) translateY(20px);
+  max-width:90%;
+  padding:11px 20px;
+  font-size:13px;white-space:nowrap;
+  color:var(--text-inv);
+  background:var(--navy);
+  border-radius:24px;
+  box-shadow:0 10px 24px rgba(0,0,0,.3);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;
+  z-index:100;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ==========================================================
+   DESKTOP
+   ========================================================== */
+@media (min-width:768px){
+  .app-shell{border-left:1px solid var(--border);border-right:1px solid var(--border);}
+}
+
+/* ==========================================================
+   REDUCED MOTION
+   ========================================================== */
+@media (prefers-reduced-motion:reduce){
+  .greeting-hello,.greeting-name,.quote-wrap,.greeting-mountain{
+    animation:none !important;
+    opacity:1 !important;
+    transform:none !important;
+  }
+  .nav-fab{animation:none !important;}
+  *{transition-duration:.01ms !important;}
+}
+
+/* ==========================================================
+   DESKTOP (>=900px) — left sidebar nav + centered dialogs
+   ========================================================== */
+@media (min-width:900px){
+  :root{--sidebar-w:88px;}
+
+  .app-shell{max-width:none;margin:0 0 0 var(--sidebar-w);}
+
+  .header{left:var(--sidebar-w);right:0;top:0;transform:none;margin:0;width:auto;max-width:none;padding-left:32px;padding-right:32px;}
+
+  #page{padding-bottom:40px;}
+
+  .bottom-nav{
+    left:0;right:auto;top:0;bottom:0;transform:none;margin:0;
+    width:var(--sidebar-w);max-width:none;height:100vh;
+    flex-direction:column;justify-content:flex-start;align-items:center;
+    gap:8px;padding:28px 0 20px;
+    border-top:none;border-right:1px solid var(--border);
+  }
+  .nav-item{width:64px;padding:8px 4px;}
+  .nav-fab{margin-top:4px;order:-1;}
+
+  .sheet{
+    left:50%;top:50%;bottom:auto;right:auto;
+    width:92%;max-width:440px;max-height:86vh;
+    border-radius:24px;
+    transform:translate(-50%,-50%) scale(.95);
+    opacity:0;pointer-events:none;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+  }
+  .sheet.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+
+.grid{grid-template-columns:repeat(8,minmax(0,1fr));gap:26px 16px;padding:0 32px;}
+  #home{padding-bottom:48px;}
+  .hero-row{display:flex;align-items:stretch;gap:24px;padding:0 32px;}
+  .hero-row .greeting{flex:1 1 55%;min-width:0;padding:0;}
+  .hero-row .greeting-mountain{max-width:100%;}
+  .hero-row .summary-card{flex:0 1 320px;min-width:220px;margin:14px 0 24px;}
+  .greeting{padding:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <section id="home">
+
+    <header class="header">
+      <div class="brand">
+        <img class="brand-logo" src="logo.png" alt="" width="36" height="36" onerror="this.style.display='none'">
+        <h1>Echoes Of Time</h1>
+      </div>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" onclick="toggleTheme()">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1111 3.2a6.8 6.8 0 009 11.3Z"/></svg>
+      </button>
+    </header>
+    <div class="header-spacer"></div>
+
+    <div class="hero-row">
+      <div class="greeting">
+        <div class="greeting-text">
+          <p class="greeting-hello">Good morning,</p>
+          <h2 class="greeting-name">
+            <span class="name">Nafiz</span>
+            <svg class="leaf" viewBox="0 0 24 24" fill="none" stroke="#5f8f5a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c8 0 15-6 16-16-10 1-16 8-16 16Z"/><path d="M5 19c3-4 6-7 12-13"/></svg>
+          </h2>
+          <div class="quote-wrap">
+            <p class="quote">"A little progress each day<br>adds up to big results."</p>
+          </div>
+        </div>
+
+        <img class="greeting-mountain" src="mountain.png" alt="" width="1124" height="767">
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-main">
+          <div class="summary-date" id="todayDate"></div>
+          <div class="summary-today">Today
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="summary-stats">
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-4"/></svg>
+            <span><b>3</b> Goals in progress</span>
+          </div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/></svg>
+            <span><b>1</b> Journal entry</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="grid" id="moduleGrid" aria-label="Modules"></nav>
+
+  </section>
+
+  <nav class="bottom-nav" id="bottomNav" aria-label="Main navigation">
+    <button type="button" class="nav-item active" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+      Home
+    </button>
+    <a href="photos.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+      Explore
+    </a>
+    <button type="button" class="nav-fab" aria-label="Quick add" onclick="toast('Quick add coming soon')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <a href="diary.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/></svg>
+      Journal
+    </a>
+    <a href="admin.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+      Admin
+    </a>
+  </nav>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function(){
+  /* ---------- Modules ---------- */
+  var modules = [
+    ["Photos","photos.html","#e3ecf7","#3f6fb0",'<path d="M4 6h16v13H4z"/><circle cx="9" cy="11" r="2"/><path d="M4 17l5-5 4 4 3-3 4 4"/>'],
+    ["Contacts","contacts.html","#e6f2e8","#4a8f5a",'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-4 5-5.5 7-5.5S18.5 16 20 20"/>'],
+    ["Passwords","passwords.html","#f2ecdd","#b28a3d",'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/>'],
+    ["Diary","diary.html","#fbeade","#c06a3c",'<path d="M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1Z"/><path d="M9 9h6M9 13h6"/>'],
+    ["Documents","documents.html","#eceef2","#5c6472",'<path d="M6 3h8l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1Z"/><path d="M14 3v4h4"/>'],
+    ["Finance","finance.html","#e6f2e8","#3f8f52",'<path d="M12 2v20M17 6.5c0-2-2-3.5-5-3.5S7 4.5 7 6.5 9 9.5 12 9.5s5 1.4 5 3.5-2 3.5-5 3.5-5-1.5-5-3.5"/>'],
+    ["Dreams","dreams.html","#ede6f5","#7e56a8",'<path d="M20 12.5A8 8 0 1111.5 4a6.5 6.5 0 008.5 8.5Z"/>'],
+    ["My Projects","projects.html","#e3f1ef","#3f8f83",'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>'],
+    ["Knowledge","knowledge.html","#faf0dc","#c19133",'<path d="M4 6.5C4 5 5.5 4 8 4c2 0 3.5.7 4 1.5.5-.8 2-1.5 4-1.5 2.5 0 4 1 4 2.5V18c0-1-1.5-1.5-4-1.5-2 0-3.5.5-4 1.5-.5-1-2-1.5-4-1.5-2.5 0-4 .5-4 1.5V6.5Z"/><path d="M12 5.5V19"/>']
+  ];
+
+  var grid = document.getElementById('moduleGrid');
+  modules.forEach(function(m){
+    var a = document.createElement('a');
+    a.className = 'module';
+    a.href = m[1];
+    a.innerHTML =
+      '<div class="module-icon" style="--m-bg:' + m[2] + ';--m-fg:' + m[3] + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + m[4] + '</svg>' +
+      '</div><span>' + m[0] + '</span>';
+    grid.appendChild(a);
+  });
+
+  /* ---------- Toast ---------- */
+  var toastTimer;
+  window.toast = function(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  };
+
+  /* ---------- Bottom nav ---------- */
+  window.setNav = function(el){
+    var items = document.querySelectorAll('.nav-item');
+    for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
+    el.classList.add('active');
+  };
+
+  /* ---------- Today's date, e.g. "Wed, 23 Sep 2026" ---------- */
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var d = new Date();
+  document.getElementById('todayDate').textContent =
+    days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+
+  /* ---------- Greeting: Good morning / afternoon / evening / night ---------- */
+  var hour = d.getHours();
+  var greeting;
+  if (hour >= 5 && hour < 12) greeting = 'Good morning,';
+  else if (hour >= 12 && hour < 17) greeting = 'Good afternoon,';
+  else if (hour >= 17 && hour < 21) greeting = 'Good evening,';
+  else greeting = 'Good night,';
+  document.querySelector('.greeting-hello').textContent = greeting;
+
+  /* ---------- Dark mode toggle ---------- */
+  var metaTheme = document.getElementById('metaThemeColor');
+  function applyThemeColor(){
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    metaTheme.setAttribute('content', isDark ? '#12151c' : '#faf7f0');
+  }
+  applyThemeColor();
+  window.toggleTheme = function(){
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+    try{ localStorage.setItem('eot-theme', isDark ? 'light' : 'dark'); }catch(e){}
+    applyThemeColor();
+  };
+})();
+</script>
+</body>
+</html>
